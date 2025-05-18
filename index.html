@@ -5,11 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>計數與音檔月曆</title>
   <style>
-    :root { --primary: #4a90e2; --secondary: #50e3c2; --bg: #f7f9fc; --card-bg: #ffffff; --text: #333; --muted: #888; --accent: #f5a623; }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body,html { width:100vw; background:var(--bg); color:var(--text); font-family:'Helvetica Neue',Arial,sans-serif; }
-    .container { width:100vw; padding:0; }
-    .card { background:var(--card-bg); margin-bottom:1rem; }
+    /* 根據裝置寬度自動縮放字體，設定最小0.875rem、理想4vw、最大1.25rem */
+    html { font-size: clamp(0.875rem, 4vw, 1.25rem); }
+
+    :root {
+      --primary: #4a90e2;
+      --secondary: #50e3c2;
+      --bg: #f7f9fc;
+      --card-bg: #ffffff;
+      --text: #333;
+      --muted: #888;
+      --accent: #f5a623;
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 100vw;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+    .container { width: 100vw; padding: 0; }
+    .card { background: var(--card-bg); margin-bottom: 1rem; }
 
     /* 全螢幕方形計數按鈕 */
     #counterBtn {
@@ -17,7 +33,7 @@
       touch-action: manipulation;
       width: calc(100vw - 2rem);
       height: 85vh;
-      font-size: 15rem;
+      font-size: clamp(8rem, 15vw, 18rem);  /* 數字也隨寬度縮放，最小3rem、最大5rem */
       border: none;
       background: var(--primary);
       color: #fff;
@@ -29,38 +45,67 @@
       margin: 1rem;
     }
 
-    .info { text-align:center; padding:0.5rem; }
-    .info div { margin:0.25rem 0; }
+    .info { text-align: center; padding: 0.5rem; }
+    .info div { font-size: 1rem; margin: 0.25rem 0; }
 
     #toggleCalendarBtn {
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
-      width:100vw;
-      padding:0.5rem;
-      font-size:1rem;
-      background:var(--accent);
-      color:#fff;
-      border:none;
-      cursor:pointer;
-      margin-bottom:1rem;
+      width: 100vw;
+      padding: 0.5rem;
+      font-size: 1rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin-bottom: 1rem;
     }
 
-    .calendar-container.hidden { display:none; }
-    .calendar-container { width:100vw; margin-bottom:1rem; overflow-x:auto; }
+    .calendar-container.hidden { display: none; }
+    .calendar-container { width: 100vw; margin-bottom: 1rem; overflow-x: auto; }
 
-    .calendar-header { display:flex; align-items:center; justify-content:center; padding:0.5rem; position:relative; }
-    .nav-btn { background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--muted); padding:0 0.5rem; }
-    #monthDisplay { font-weight:600; font-size:1.1rem; }
-    #monthStats { position:absolute; right:1rem; font-size:0.9rem; color:var(--accent); }
-    table.calendar { width:100%; border-collapse:collapse; }
-    .calendar th, .calendar td { width:calc(100%/7); padding:0.5rem; text-align:center; font-size:0.85rem; border:1px solid #ececec; }
-    .calendar th { background:var(--bg); color:var(--muted); }
-    .today { background:var(--secondary); color:#fff; }
-    .counts { font-size:0.7rem; color:var(--muted); margin-top:0.2rem; }
+    .calendar-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem;
+      position: relative;
+    }
+    .nav-btn {
+      background: none;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      color: var(--muted);
+      padding: 0 0.5rem;
+    }
+    #monthDisplay { font-weight: 600; font-size: 1rem; }
+    #monthStats { position: absolute; right: 1rem; font-size: 0.875rem; color: var(--accent); }
+    table.calendar { width: 100%; border-collapse: collapse; }
+    .calendar th, .calendar td {
+      width: calc(100%/7);
+      padding: 0.5rem;
+      text-align: center;
+      font-size: 0.75rem;
+      border: 1px solid #ececec;
+    }
+    .calendar th { background: var(--bg); color: var(--muted); }
+    .today { background: var(--secondary); color: #fff; }
+    .counts { font-size: 0.6rem; color: var(--muted); margin-top: 0.2rem; }
 
-    .audio-widget { position:absolute; top:0.5rem; right:0.5rem; background:rgba(0,0,0,0.15); padding:0.2rem; border-radius:4px; display:flex; align-items:center; gap:0.3rem; }
-    .audio-widget select { display:none; }
-    .audio-widget:hover select { display:block; }
+    .audio-widget {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: rgba(0,0,0,0.15);
+      padding: 0.2rem;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .audio-widget select { display: none; }
+    .audio-widget:hover select { display: block; }
   </style>
 </head>
 <body>
@@ -100,20 +145,65 @@
     const dailyData = JSON.parse(localStorage.getItem('dailyData')||'{}');
     const now = new Date(), todayKey = now.toISOString().slice(0,10);
     let [displayYear, displayMonth] = [now.getFullYear(), now.getMonth()];
-    let counter = dailyData[todayKey]?.counter||0, groupCount=dailyData[todayKey]?.groupCount||0;
-    const counterBtn=document.getElementById('counterBtn'),
-          groupDisplay=document.getElementById('groupDisplay'),
-          dailyDisplay=document.getElementById('dailyDisplay');
-    function saveDay(key,cnt,grp){dailyData[key]={counter:cnt,groupCount:grp};localStorage.setItem('dailyData',JSON.stringify(dailyData));}
-    function renderInfo(){const m=now.getMonth()+1,d=now.getDate();dailyDisplay.textContent=`今天${m}/${d}：${counter} / 108`;groupDisplay.textContent=`組數：${groupCount}`;}
-    counterBtn.textContent=counter;renderInfo();
-    counterBtn.addEventListener('click',()=>{counter++;if(counter>=108){groupCount++;counter=0;}counterBtn.textContent=counter;saveDay(todayKey,counter,groupCount);renderInfo();renderCalendar();});
-    document.getElementById('toggleCalendarBtn').addEventListener('click',function(){const cal=document.getElementById('calendarSection');if(cal.classList.toggle('hidden'))this.textContent='顯示月曆';else this.textContent='隱藏月曆';});
-    document.getElementById('prevMonth').onclick=()=>{displayMonth--;if(displayMonth<0){displayMonth=11;displayYear--;}renderCalendar();};
-    document.getElementById('nextMonth').onclick=()=>{displayMonth++;if(displayMonth>11){displayMonth=0;displayYear++;}renderCalendar();};
-    function renderCalendar(){document.getElementById('monthDisplay').textContent=`${displayYear} 年 ${displayMonth+1} 月`;const cal=document.getElementById('calendar');cal.innerHTML='';const first=new Date(displayYear,displayMonth,1).getDay(),offset=(first+6)%7;const days=new Date(displayYear,displayMonth+1,0).getDate();const dow=['一','二','三','四','五','六','日'];let html='<tr>'+dow.map(d=>`<th>${d}</th>`).join('')+'</tr><tr>';html+='<td></td>'.repeat(offset);let total=0;for(let d=1;d<=days;d++){const key=`${displayYear}-${String(displayMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`,data=dailyData[key]||{counter:0,groupCount:0};total+=data.groupCount;const cls=key===todayKey?'today':'';html+=`<td class="${cls}">${d}<div class="counts">${data.counter}/${data.groupCount}</div></td>`;if((offset+d)%7===0&&d<days)html+='</tr><tr>';}html+='</tr>';cal.innerHTML=html;document.getElementById('monthStats').textContent=`本月組數: ${total}`;}
+    let counter = dailyData[todayKey]?.counter||0, groupCount = dailyData[todayKey]?.groupCount||0;
+    const counterBtn = document.getElementById('counterBtn'),
+          groupDisplay = document.getElementById('groupDisplay'),
+          dailyDisplay = document.getElementById('dailyDisplay');
+    function saveDay(key,cnt,grp) {
+      dailyData[key] = {counter: cnt, groupCount: grp};
+      localStorage.setItem('dailyData', JSON.stringify(dailyData));
+    }
+    function renderInfo() {
+      const m = now.getMonth() + 1, d = now.getDate();
+      dailyDisplay.textContent = `今天${m}/${d}：${counter} / 108`;
+      groupDisplay.textContent = `組數：${groupCount}`;
+    }
+    counterBtn.textContent = counter;
+    renderInfo();
+    counterBtn.addEventListener('click', () => {
+      counter++;
+      if (counter >= 108) { groupCount++; counter = 0; }
+      counterBtn.textContent = counter;
+      saveDay(todayKey, counter, groupCount);
+      renderInfo();
+      renderCalendar();
+    });
+    document.getElementById('toggleCalendarBtn').addEventListener('click', function() {
+      const cal = document.getElementById('calendarSection');
+      if (cal.classList.toggle('hidden')) this.textContent = '顯示月曆';
+      else this.textContent = '隱藏月曆';
+    });
+    document.getElementById('prevMonth').onclick = () => { displayMonth--; if (displayMonth < 0) { displayMonth = 11; displayYear--; } renderCalendar(); };
+    document.getElementById('nextMonth').onclick = () => { displayMonth++; if (displayMonth > 11) { displayMonth = 0; displayYear++; } renderCalendar(); };
+    function renderCalendar() {
+      document.getElementById('monthDisplay').textContent = `${displayYear} 年 ${displayMonth+1} 月`;
+      const cal = document.getElementById('calendar');
+      cal.innerHTML = '';
+      const first = new Date(displayYear, displayMonth, 1).getDay(), offset = (first + 6) %7;
+      const days = new Date(displayYear, displayMonth+1, 0).getDate();
+      const dow = ['一','二','三','四','五','六','日'];
+      let html = '<tr>'+ dow.map(d => `<th>${d}</th>`).join('') + '</tr><tr>';
+      html += '<td></td>'.repeat(offset);
+      let total = 0;
+      for (let d=1; d<=days; d++) {
+        const key = `${displayYear}-${String(displayMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const data = dailyData[key] || {counter:0, groupCount:0}; total += data.groupCount;
+        const cls = (key === todayKey) ? 'today' : '';
+        html += `<td class="${cls}">${d}<div class="counts">${data.counter}/${data.groupCount}</div></td>`;
+        if ((offset + d) %7 ===0 && d<days) html += '</tr><tr>';
+      }
+      html += '</tr>';
+      cal.innerHTML = html;
+      document.getElementById('monthStats').textContent = `本月組數: ${total}`;
+    }
     renderCalendar();
-    const audio=new Audio('background.m4a');audio.loop=true;audio.preload='auto';audio.playbackRate=1;const playIcon=document.getElementById('playIcon'),pauseIcon=document.getElementById('pauseIcon'),playPauseBtn=document.getElementById('playPauseBtn'),rateSel=document.getElementById('rateSel');playPauseBtn.addEventListener('click',()=>{if(audio.paused){audio.play();playIcon.style.display='none';pauseIcon.style.display='block';}else{audio.pause();playIcon.style.display='block';pauseIcon.style.display='none';}});rateSel.addEventListener('change',()=>audio.playbackRate=+rateSel.value);
+    const audio = new Audio('background.m4a'); audio.loop = true; audio.preload = 'auto'; audio.playbackRate = 1;
+    const playIcon = document.getElementById('playIcon'), pauseIcon = document.getElementById('pauseIcon'), playPauseBtn = document.getElementById('playPauseBtn'), rateSel = document.getElementById('rateSel');
+    playPauseBtn.addEventListener('click', () => {
+      if (audio.paused) { audio.play(); playIcon.style.display='none'; pauseIcon.style.display='block'; }
+      else { audio.pause(); playIcon.style.display='block'; pauseIcon.style.display='none'; }
+    });
+    rateSel.addEventListener('change', () => audio.playbackRate = +rateSel.value);
   </script>
 </body>
 </html>
