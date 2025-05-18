@@ -5,27 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>計數與音檔月曆</title>
   <style>
-    /* 根據裝置寬度自動縮放字體，設定最小0.875rem、理想4vw、最大1.25rem */
+    /* 根據裝置寬度自動縮放字體 */
     html { font-size: clamp(0.875rem, 4vw, 1.25rem); }
-
     :root {
       --primary: #4a90e2;
-      --secondary: #50e3c2;
+      --label-bg: rgba(173, 216, 230, 0.3); /* 藍霧灰 */
       --bg: #f7f9fc;
       --card-bg: #ffffff;
       --text: #333;
       --muted: #888;
       --accent: #f5a623;
+      --highlight-bg: rgba(21, 96, 189, 0.2);
+      --highlight-color: #1560BD; /* 牛仔藍 */
     }
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
     body {
-      width: 100vw;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Helvetica Neue', Arial, sans-serif;
+      width:100vw;
+      background:var(--bg);
+      color:var(--text);
+      font-family:'Helvetica Neue',Arial,sans-serif;
     }
-    .container { width: 100vw; padding: 0; }
-    .card { background: var(--card-bg); margin-bottom: 1rem; }
+    .container { width:100vw; padding:0; }
+    .card { background:var(--card-bg); margin-bottom:1rem; position:relative; }
 
     /* 全螢幕方形計數按鈕 */
     #counterBtn {
@@ -33,7 +34,7 @@
       touch-action: manipulation;
       width: calc(100vw - 2rem);
       height: 85vh;
-      font-size: clamp(8rem, 15vw, 18rem);  /* 數字也隨寬度縮放，最小3rem、最大5rem */
+      font-size: clamp(5rem, 15vw, 30rem);
       border: none;
       background: var(--primary);
       color: #fff;
@@ -45,9 +46,30 @@
       margin: 1rem;
     }
 
-    .info { text-align: center; padding: 0.5rem; }
-    .info div { font-size: 1rem; margin: 0.25rem 0; }
+    /* 合併兩行為左右分佈，色塊+圓角標籤 */
+    .info {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 1rem 1rem;
+    }
+    .info div {
+      background: var(--label-bg);
+      color: var(--highlight-color);
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-weight: 600;
+      font-size: 1rem;
+      white-space: nowrap;
+    }
+    .highlight-number {
+      background: var(--highlight-bg);
+      color: var(--highlight-color);
+      padding: 0.1em 0.4em;
+      border-radius: 0.5em;
+      font-weight: 700;
+    }
 
+    /* 顯示/隱藏月曆按鈕 */
     #toggleCalendarBtn {
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
@@ -62,7 +84,7 @@
     }
 
     .calendar-container.hidden { display: none; }
-    .calendar-container { width: 100vw; margin-bottom: 1rem; overflow-x: auto; }
+    .calendar-container { width:100vw; margin-bottom:1rem; overflow-x:auto; }
 
     .calendar-header {
       display: flex;
@@ -149,61 +171,41 @@
     const counterBtn = document.getElementById('counterBtn'),
           groupDisplay = document.getElementById('groupDisplay'),
           dailyDisplay = document.getElementById('dailyDisplay');
-    function saveDay(key,cnt,grp) {
-      dailyData[key] = {counter: cnt, groupCount: grp};
-      localStorage.setItem('dailyData', JSON.stringify(dailyData));
-    }
+    function saveDay(key,cnt,grp) { dailyData[key] = {counter:cnt, groupCount:grp}; localStorage.setItem('dailyData', JSON.stringify(dailyData)); }
     function renderInfo() {
-      const m = now.getMonth() + 1, d = now.getDate();
-      dailyDisplay.textContent = `今天${m}/${d}：${counter} / 108`;
+      const m = now.getMonth()+1, d = now.getDate();
+      dailyDisplay.innerHTML = `今天${m}/${d}：<span class="highlight-number">${counter}</span> / 108`;
       groupDisplay.textContent = `組數：${groupCount}`;
     }
-    counterBtn.textContent = counter;
-    renderInfo();
-    counterBtn.addEventListener('click', () => {
-      counter++;
-      if (counter >= 108) { groupCount++; counter = 0; }
-      counterBtn.textContent = counter;
-      saveDay(todayKey, counter, groupCount);
-      renderInfo();
-      renderCalendar();
-    });
-    document.getElementById('toggleCalendarBtn').addEventListener('click', function() {
-      const cal = document.getElementById('calendarSection');
-      if (cal.classList.toggle('hidden')) this.textContent = '顯示月曆';
-      else this.textContent = '隱藏月曆';
-    });
-    document.getElementById('prevMonth').onclick = () => { displayMonth--; if (displayMonth < 0) { displayMonth = 11; displayYear--; } renderCalendar(); };
-    document.getElementById('nextMonth').onclick = () => { displayMonth++; if (displayMonth > 11) { displayMonth = 0; displayYear++; } renderCalendar(); };
+    counterBtn.textContent = counter; renderInfo();
+    counterBtn.addEventListener('click', () => { counter++; if(counter>=108){ groupCount++; counter=0; } counterBtn.textContent = counter; saveDay(todayKey, counter, groupCount); renderInfo(); renderCalendar(); });
+    document.getElementById('toggleCalendarBtn').addEventListener('click', function() { const cal = document.getElementById('calendarSection'); if(cal.classList.toggle('hidden')) this.textContent = '顯示月曆'; else this.textContent='隱藏月曆'; });
+    document.getElementById('prevMonth').onclick = () => { displayMonth--; if(displayMonth<0){ displayMonth=11; displayYear--; } renderCalendar(); };
+    document.getElementById('nextMonth').onclick = () => { displayMonth++; if(displayMonth>11){ displayMonth=0; displayYear++; } renderCalendar(); };
     function renderCalendar() {
       document.getElementById('monthDisplay').textContent = `${displayYear} 年 ${displayMonth+1} 月`;
-      const cal = document.getElementById('calendar');
-      cal.innerHTML = '';
-      const first = new Date(displayYear, displayMonth, 1).getDay(), offset = (first + 6) %7;
-      const days = new Date(displayYear, displayMonth+1, 0).getDate();
-      const dow = ['一','二','三','四','五','六','日'];
-      let html = '<tr>'+ dow.map(d => `<th>${d}</th>`).join('') + '</tr><tr>';
+      const cal = document.getElementById('calendar'); cal.innerHTML='';
+      const first = new Date(displayYear,displayMonth,1).getDay(), offset=(first+6)%7;
+      const days = new Date(displayYear,displayMonth+1,0).getDate();
+      const dow=['一','二','三','四','五','六','日'];
+      let html='<tr>'+dow.map(d=>`<th>${d}</th>`).join('')+'</tr><tr>';
       html += '<td></td>'.repeat(offset);
-      let total = 0;
-      for (let d=1; d<=days; d++) {
-        const key = `${displayYear}-${String(displayMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        const data = dailyData[key] || {counter:0, groupCount:0}; total += data.groupCount;
-        const cls = (key === todayKey) ? 'today' : '';
-        html += `<td class="${cls}">${d}<div class="counts">${data.counter}/${data.groupCount}</div></td>`;
-        if ((offset + d) %7 ===0 && d<days) html += '</tr><tr>';
+      let total=0;
+      for(let d=1; d<=days; d++){
+        const key=`${displayYear}-${String(displayMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, data=dailyData[key]||{counter:0,groupCount:0}; total+=data.groupCount;
+        const cls=(key===todayKey?'today':'');
+        html+=`<td class="${cls}">${d}<div class="counts">${data.counter}/${data.groupCount}</div></td>`;
+        if((offset+d)%7===0&&d<days) html+='</tr><tr>';
       }
-      html += '</tr>';
-      cal.innerHTML = html;
-      document.getElementById('monthStats').textContent = `本月組數: ${total}`;
+      html+='</tr>';
+      cal.innerHTML=html;
+      document.getElementById('monthStats').textContent=`本月組數: ${total}`;
     }
     renderCalendar();
-    const audio = new Audio('background.m4a'); audio.loop = true; audio.preload = 'auto'; audio.playbackRate = 1;
-    const playIcon = document.getElementById('playIcon'), pauseIcon = document.getElementById('pauseIcon'), playPauseBtn = document.getElementById('playPauseBtn'), rateSel = document.getElementById('rateSel');
-    playPauseBtn.addEventListener('click', () => {
-      if (audio.paused) { audio.play(); playIcon.style.display='none'; pauseIcon.style.display='block'; }
-      else { audio.pause(); playIcon.style.display='block'; pauseIcon.style.display='none'; }
-    });
-    rateSel.addEventListener('change', () => audio.playbackRate = +rateSel.value);
+    const audio=new Audio('background.m4a'); audio.loop=true; audio.preload='auto'; audio.playbackRate=1;
+    const playIcon=document.getElementById('playIcon'), pauseIcon=document.getElementById('pauseIcon'), playPauseBtn=document.getElementById('playPauseBtn'), rateSel=document.getElementById('rateSel');
+    playPauseBtn.addEventListener('click', () => { if(audio.paused){ audio.play(); playIcon.style.display='none'; pauseIcon.style.display='block'; } else { audio.pause(); playIcon.style.display='block'; pauseIcon.style.display='none'; } });
+    rateSel.addEventListener('change', () => audio.playbackRate=+rateSel.value);
   </script>
 </body>
 </html>
