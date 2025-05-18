@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>計數與音檔月曆</title>
+  <title>om_mani_padme_hum</title>
   <style>
     /* 根據裝置寬度自動縮放字體 */
     html { font-size: clamp(0.875rem, 4vw, 1.25rem); }
@@ -41,7 +41,7 @@
       width: 100%;       /* 填滿父容器寬度 */
       margin: 1rem 0;    /* 僅保留上下間距 */
       height: 85vh;
-      font-size: clamp(20vw, 60vw, 100vw);
+      font-size: clamp(20vw, 50vw, 80vw);
       border: none;
       background: var(--primary);
       color: #fff;
@@ -233,7 +233,7 @@
       document.getElementById('monthStats').textContent=`本月組數: ${total}`;
     }
     renderCalendar();
-    const audio=new Audio('background.m4a'); audio.loop=true; audio.preload='auto'; audio.playbackRate=1;
+    const audio=new Audio('background.mp3'); audio.loop=true; audio.preload='auto'; audio.playbackRate=1;
     const playIcon=document.getElementById('playIcon'), pauseIcon=document.getElementById('pauseIcon'), playPauseBtn=document.getElementById('playPauseBtn'), rateSel=document.getElementById('rateSel');
     playPauseBtn.addEventListener('click', () => { if(audio.paused){ audio.play(); playIcon.style.display='none'; pauseIcon.style.display='block'; } else { audio.pause(); playIcon.style.display='block'; pauseIcon.style.display='none'; } });
     rateSel.addEventListener('change', () => audio.playbackRate=+rateSel.value);
