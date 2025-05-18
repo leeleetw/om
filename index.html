@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>計數與音檔月曆</title>
+  <style>
+    :root { --primary: #4a90e2; --secondary: #50e3c2; --bg: #f7f9fc; --card-bg: #ffffff; --text: #333; --muted: #888; --accent: #f5a623; --shadow: rgba(0,0,0,0.1); }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body,html { width:100%; min-height:100vh; font-family:'Helvetica Neue',Arial,sans-serif; background:var(--bg); color:var(--text); }
+    .container { max-width:600px; margin:auto; padding:1rem; }
+    .card { position:relative; background:var(--card-bg); border-radius:8px; box-shadow:0 2px 8px var(--shadow); padding:1rem; margin-bottom:1rem; }
+    #counterBtn { display:block; width:120px; height:120px; line-height:120px; margin:0.5rem auto; font-size:2.5rem; border:none; border-radius:50%; background:var(--primary); color:#fff; cursor:pointer; box-shadow:0 2px 4px var(--shadow); transition:transform 0.1s; }
+    #counterBtn:active { transform:scale(0.95); }
+    .info { text-align:center; margin-top:0.5rem; }
+    .info div { margin:0.25rem 0; }
+    .calendar-container { position:relative; margin-top:1rem; }
+    .calendar-header { display:flex; align-items:center; justify-content:center; position:relative; margin-bottom:0.5rem; }
+    .nav-btn { background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--muted); padding:0 0.5rem; }
+    #monthDisplay { font-weight:600; font-size:1.1rem; }
+    #monthStats { position:absolute; right:0; font-size:0.9rem; color:var(--accent); }
+    table.calendar { width:100%; border-collapse:collapse; background:var(--card-bg); border-radius:8px; overflow:hidden; }
+    .calendar th, .calendar td { width:calc(100%/7); padding:0.5rem; text-align:center; font-size:0.85rem; border:1px solid #ececec; }
+    .calendar th { background:var(--bg); color:var(--muted); }
+    .today { background:var(--secondary); color:#fff; }
+    .counts { font-size:0.7rem; color:var(--muted); margin-top:0.2rem; }
+    /* 音檔 Widget */
+    .audio-widget { position:absolute; top:0.5rem; right:0.5rem; background:rgba(255,255,255,0.9); padding:0.5rem; border-radius:4px; box-shadow:0 1px 4px var(--shadow); transform:scale(0.8); transform-origin:top right; width:240px; z-index:10; }
+    .audio-widget label { display:block; padding:0.3rem; background:var(--primary); color:#fff; border-radius:4px; text-align:center; cursor:pointer; margin-bottom:0.3rem; }
+    .audio-widget input { display:none; }
+    #audioList { list-style:none; padding:0; max-height:150px; overflow:auto; }
+    #audioList li { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.3rem; }
+    #audioList li .left { display:flex; align-items:center; gap:0.3rem; }
+    #audioList li span { font-size:0.7rem; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:80px; }
+    #audioList audio { display:none; }
+    #audioList button { background:none; border:none; font-size:1rem; color:var(--primary); cursor:pointer; }
+    #audioList select { font-size:0.7rem; padding:0.1rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <button id="counterBtn">0</button>
+      <div class="info">
+        <div id="groupDisplay">組數: 0</div>
+        <div id="dailyDisplay">今日：0 / 108，組數：0</div>
+      </div>
+      <div class="audio-widget">
+        <label for="fileInput">📁 上傳音檔</label>
+        <input type="file" id="fileInput" accept="audio/*" multiple />
+        <ul id="audioList"></ul>
+      </div>
+    </div>
+    <div class="card calendar-container">
+      <div class="calendar-header">
+        <button class="nav-btn" id="prevMonth">&#9664;</button>
+        <div id="monthDisplay"></div>
+        <button class="nav-btn" id="nextMonth">&#9654;</button>
+        <div id="monthStats"></div>
+      </div>
+      <table class="calendar" id="calendar"></table>
+    </div>
+  </div>
+  <script>
+    // 計數與儲存邏輯
+    let dailyData = JSON.parse(localStorage.getItem('dailyData')||'{}');
+    const now = new Date(), todayKey = now.toISOString().slice(0,10);
+    let displayYear = now.getFullYear(), displayMonth = now.getMonth();
+    let counter = dailyData[todayKey]?.counter || 0;
+    let groupCount = dailyData[todayKey]?.groupCount || 0;
+    const counterBtn = document.getElementById('counterBtn');
+    const groupDisplay = document.getElementById('groupDisplay');
+
+    counterBtn.textContent = counter;
+    groupDisplay.textContent = `組數: ${groupCount}`;
+
+    function saveDay(key, cnt, grp) {
+      dailyData[key] = { counter: cnt, groupCount: grp };
+      localStorage.setItem('dailyData', JSON.stringify(dailyData));
+    }
+    function updateDaily() {
+      document.getElementById('dailyDisplay').textContent = `今日：${counter} / 108，組數：${groupCount}`;
+    }
+    counterBtn.addEventListener('click', () => {
+      counter++;
+      if (counter >= 108) { groupCount++; counter = 0; }
+      counterBtn.textContent = counter;
+      groupDisplay.textContent = `組數: ${groupCount}`;
+      saveDay(todayKey, counter, groupCount);
+      updateDaily(); renderCalendar();
+    });
+    // 月曆渲染
+    document.getElementById('prevMonth').onclick = () => { displayMonth--; if (displayMonth < 0) { displayMonth = 11; displayYear--; } renderCalendar(); };
+    document.getElementById('nextMonth').onclick = () => { displayMonth++; if (displayMonth > 11) { displayMonth = 0; displayYear++; } renderCalendar(); };
+    function renderCalendar() {
+      document.getElementById('monthDisplay').textContent = `${displayYear} 年 ${displayMonth+1} 月`;
+      const cal = document.getElementById('calendar'); cal.innerHTML = '';
+      const first = new Date(displayYear, displayMonth, 1).getDay();
+      const offset = (first + 6) % 7;
+      const days = new Date(displayYear, displayMonth+1, 0).getDate();
+      const dow = ['一','二','三','四','五','六','日'];
+      let html = '<tr>' + dow.map(d=>`<th>${d}</th>`).join('') + '</tr><tr>';
+      html += '<td></td>'.repeat(offset);
+      let total = 0;
+      for (let d = 1; d <= days; d++) {
+        const key = `${displayYear}-${String(displayMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const data = dailyData[key] || {counter:0, groupCount:0};
+        total += data.groupCount;
+        const cls = key === todayKey ? 'today' : '';
+        html += `<td class="${cls}">${d}<div class="counts">${data.counter}/${data.groupCount}</div></td>`;
+        if ((offset + d) % 7 === 0 && d < days) html += '</tr><tr>';
+      }
+      html += '</tr>';
+      cal.innerHTML = html;
+      document.getElementById('monthStats').textContent = `本月組數: ${total}`;
+    }
+    renderCalendar(); updateDaily();
+
+    // 音檔上傳與播放
+    const fileInput = document.getElementById('fileInput');
+    const audioList = document.getElementById('audioList');
+
+    fileInput.addEventListener('change', (e) => {
+      Array.from(e.target.files).forEach(file => {
+        const url = URL.createObjectURL(file);
+        const li = document.createElement('li');
+        const leftDiv = document.createElement('div'); leftDiv.className = 'left';
+        const playBtn = document.createElement('button'); playBtn.textContent = '▶️';
+        const nameSpan = document.createElement('span'); nameSpan.textContent = file.name;
+        // 倍速選單（每首獨立）
+        const rateSel = document.createElement('select');
+        [0.5,1,1.5,2,2.5].forEach(r => {
+          const opt = document.createElement('option'); opt.value = r; opt.textContent = r + 'x';
+          rateSel.append(opt);
+        });
+        rateSel.value = 1;
+        const audio = document.createElement('audio'); audio.src = url; audio.loop = true; audio.playbackRate = 1;
+        // 播放/暫停邏輯
+        playBtn.addEventListener('click', () => {
+          if (audio.paused) { audio.play(); playBtn.textContent = '⏸️'; }
+          else { audio.pause(); playBtn.textContent = '▶️'; }
+        });
+        // 倍速變更
+        rateSel.addEventListener('change', () => audio.playbackRate = +rateSel.value);
+        leftDiv.append(playBtn, nameSpan, rateSel);
+        const delBtn = document.createElement('button'); delBtn.textContent = '🗑️';
+        delBtn.addEventListener('click', () => {
+          if (confirm('確定要刪除此音檔？')) {
+            audio.pause(); URL.revokeObjectURL(url); li.remove();
+          }
+        });
+        li.append(leftDiv, audio, delBtn);
+        audioList.appendChild(li);
+      });
+      e.target.value = '';
+    });
+  </script>
+</body>
+</html>
