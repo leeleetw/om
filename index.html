@@ -9,14 +9,14 @@
     html { font-size: clamp(0.875rem, 4vw, 1.25rem); }
     :root {
       --primary: #4a90e2;
-      --label-bg: rgba(173, 216, 230, 0.3); /* 藍霧灰 */
+      --label-bg: rgba(173, 216, 230, 0.3);
       --bg: #f7f9fc;
       --card-bg: #ffffff;
       --text: #333;
       --muted: #888;
       --accent: #f5a623;
       --highlight-bg: rgba(21, 96, 189, 0.2);
-      --highlight-color: #1560BD; /* 牛仔藍 */
+      --highlight-color: #1560BD;
     }
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -26,7 +26,13 @@
       font-family:'Helvetica Neue',Arial,sans-serif;
     }
     .container { width:100vw; padding:0; }
-    .card { background:var(--card-bg); margin-bottom:1rem; position:relative; }
+    .card, .info-card {
+      background:var(--card-bg);
+      margin: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 0.5rem;
+    }
 
     /* 全螢幕方形計數按鈕 */
     #counterBtn {
@@ -34,7 +40,7 @@
       touch-action: manipulation;
       width: calc(100vw - 2rem);
       height: 85vh;
-      font-size: clamp(20vw, 50vw, 100vw); /* 數字佔螢幕寬度約60%，並自動調整 */
+      font-size: clamp(20vw, 60vw, 100vw);
       border: none;
       background: var(--primary);
       color: #fff;
@@ -43,16 +49,15 @@
       align-items: center;
       justify-content: center;
       border-radius: 8px;
-      margin: 1rem;
     }
 
-    /* 合併兩行為左右分佈，色塊+圓角標籤 */
-    .info {
+    /* Info 卡片：左右分佈 + 歸零按鈕 */
+    .info-card {
       display: flex;
       justify-content: space-between;
-      padding: 0 1rem 1rem;
+      align-items: center;
     }
-    .info div {
+    .info-card div {
       background: var(--label-bg);
       color: var(--highlight-color);
       padding: 0.25rem 0.75rem;
@@ -68,6 +73,15 @@
       border-radius: 0.5em;
       font-weight: 700;
     }
+    #resetBtn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.25rem 0.75rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
 
     /* 顯示/隱藏月曆按鈕 */
     #toggleCalendarBtn {
@@ -80,12 +94,13 @@
       color: #fff;
       border: none;
       cursor: pointer;
-      margin: 0 1rem 1rem;
       border-radius: 8px;
+      margin: 0 auto 1rem;
+      display: block;
     }
 
     .calendar-container.hidden { display: none; }
-    .calendar-container { width:100vw; margin-bottom:1rem; overflow-x:auto; }
+    .calendar-container { width: calc(100vw - 2rem); margin: 0 auto 1rem; overflow-x:auto; }
 
     .calendar-header {
       display: flex;
@@ -113,7 +128,7 @@
       border: 1px solid #ececec;
     }
     .calendar th { background: var(--bg); color: var(--muted); }
-    .today { background: var(--secondary); color: #fff; }
+    .today { background: var(--highlight-bg); color: var(--highlight-color); }
     .counts { font-size: 0.6rem; color: var(--muted); margin-top: 0.2rem; }
 
     .audio-widget {
@@ -135,10 +150,11 @@
   <div class="container">
     <div class="card">
       <button id="counterBtn">0</button>
-      <div class="info">
-        <div id="dailyDisplay"></div>
-        <div id="groupDisplay"></div>
-      </div>
+    </div>
+    <div class="info-card">
+      <div id="dailyDisplay"></div>
+      <div id="groupDisplay"></div>
+      <button id="resetBtn">歸零</button>
     </div>
     <button id="toggleCalendarBtn">顯示月曆</button>
     <div class="card calendar-container hidden" id="calendarSection">
@@ -171,7 +187,8 @@
     let counter = dailyData[todayKey]?.counter||0, groupCount = dailyData[todayKey]?.groupCount||0;
     const counterBtn = document.getElementById('counterBtn'),
           groupDisplay = document.getElementById('groupDisplay'),
-          dailyDisplay = document.getElementById('dailyDisplay');
+          dailyDisplay = document.getElementById('dailyDisplay'),
+          resetBtn = document.getElementById('resetBtn');
     function saveDay(key,cnt,grp) { dailyData[key] = {counter:cnt, groupCount:grp}; localStorage.setItem('dailyData', JSON.stringify(dailyData)); }
     function renderInfo() {
       const m = now.getMonth()+1, d = now.getDate();
@@ -180,6 +197,16 @@
     }
     counterBtn.textContent = counter; renderInfo();
     counterBtn.addEventListener('click', () => { counter++; if(counter>=108){ groupCount++; counter=0; } counterBtn.textContent = counter; saveDay(todayKey, counter, groupCount); renderInfo(); renderCalendar(); });
+    resetBtn.addEventListener('click', (e) => {
+      if (e.detail === 1) {
+        counter = 0;
+      } else if (e.detail === 2) {
+        groupCount = 0;
+      }
+      counterBtn.textContent = counter;
+      saveDay(todayKey, counter, groupCount);
+      renderInfo(); renderCalendar();
+    });
     document.getElementById('toggleCalendarBtn').addEventListener('click', function() { const cal = document.getElementById('calendarSection'); if(cal.classList.toggle('hidden')) this.textContent = '顯示月曆'; else this.textContent='隱藏月曆'; });
     document.getElementById('prevMonth').onclick = () => { displayMonth--; if(displayMonth<0){ displayMonth=11; displayYear--; } renderCalendar(); };
     document.getElementById('nextMonth').onclick = () => { displayMonth++; if(displayMonth>11){ displayMonth=0; displayYear++; } renderCalendar(); };
