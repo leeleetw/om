@@ -34,7 +34,7 @@
       touch-action: manipulation;
       width: calc(100vw - 2rem);
       height: 85vh;
-      font-size: clamp(5rem, 15vw, 30rem);
+      font-size: clamp(20vw, 50vw, 100vw); /* 數字佔螢幕寬度約60%，並自動調整 */
       border: none;
       background: var(--primary);
       color: #fff;
@@ -73,14 +73,15 @@
     #toggleCalendarBtn {
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
-      width: 100vw;
+      width: calc(100vw - 2rem);
       padding: 0.5rem;
       font-size: 1rem;
       background: var(--accent);
       color: #fff;
       border: none;
       cursor: pointer;
-      margin-bottom: 1rem;
+      margin: 0 1rem 1rem;
+      border-radius: 8px;
     }
 
     .calendar-container.hidden { display: none; }
