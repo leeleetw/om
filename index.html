@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>計數器</title>
+  <title>counter</title>
   <style>
     :root {
       --bg: #f2f6f8;
@@ -142,8 +142,10 @@
 
 /* 如果需要，可以替換Emoji為SVG或自定義字體圖標 */
 
-    .toggle-calendar-btn { right: 130px; }
-    .reset-btn { right: 180px; }
+    .toggle-calendar-btn { right: 110px; }
+    .reset-btn { right: 160px;
+  touch-action: manipulation; /* ✅ 新增這一行，避免雙擊縮放 */
+	}
     .play-btn { right: 10px; }
     .speed-btn { right: 60px; font-size: 0.9rem; }
 
@@ -152,7 +154,7 @@
       margin-top: 6px;
       padding: 4px 10px;
       border-radius: 12px;
-      background: #6b8797;
+      background: #f5a623;
       font-weight: bold;
       color: #333;
     }
@@ -347,14 +349,35 @@
       incrementCounter();
     });
 
-    let lastResetClick = 0;
-    resetBtn.addEventListener('click', () => {
-      const now = Date.now();
-      if (now - lastResetClick < 500) {
-        resetData();
-      }
-      lastResetClick = now;
-    });
+ // ✅ 新增這段，長按 resetBtn 1.2 秒才會歸零 count
+let pressTimer;
+// 手機
+resetBtn.addEventListener('touchstart', () => {
+  pressTimer = setTimeout(() => {
+    count = 0;
+    updateCounterDisplay();
+    save();
+    showResetToast();
+  }, 1200);
+});
+resetBtn.addEventListener('touchend', () => {
+  clearTimeout(pressTimer);
+});
+
+// 電腦
+resetBtn.addEventListener('mousedown', () => {
+  pressTimer = setTimeout(() => {
+    count = 0;
+    updateCounterDisplay();
+    save();
+    showResetToast();
+  }, 1200);
+});
+resetBtn.addEventListener('mouseup', () => {
+  clearTimeout(pressTimer);
+});
+
+
 
 function toggleCalendar() {
   const visible = calendarScreen.classList.toggle('active');
