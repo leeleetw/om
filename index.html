@@ -338,15 +338,6 @@
       save();
     }
 
-    let pressTimer;
-    countEl.addEventListener('mousedown', () => {
-      pressTimer = setTimeout(() => {
-        group = 0;
-        count = 0;
-        updateCounterDisplay();
-        save();
-      }, 2000);
-    });
 
     countEl.addEventListener('mouseup', () => {
       clearTimeout(pressTimer);
@@ -372,19 +363,15 @@ function toggleCalendar() {
   if (visible) {
     icon.src = 'back.png';
     icon.alt = '返回';
-
-    // ✅ 只在手機上禁用捲動
-    if (window.innerWidth <= 768) {
-      document.body.style.overflowY = 'hidden';
-    }
+    // ✅ 不再限制 overflow，讓捲動條可以自然出現
   } else {
     icon.src = 'calendar.png';
     icon.alt = '月曆';
-    document.body.style.overflowY = 'auto';
   }
 
   if (visible) renderCalendar(currentYear, currentMonth);
 }
+
 
 
 
@@ -437,12 +424,11 @@ function toggleCalendar() {
       renderCalendar(currentYear, currentMonth);
     }
 
-    function resetData() {
-      group = 0;
-      count = 0;
-      updateCounterDisplay();
-      save();
-    }
+function resetData() {
+  count = 0; // ✅ 只歸零 count
+  updateCounterDisplay();
+  save();
+}
 
     function togglePlay() {
       if (audio.paused) {
@@ -454,36 +440,29 @@ function toggleCalendar() {
       }
     }
 
-    function toggleSpeed() {
-      if (currentSpeed === 1) {
-        currentSpeed = 1.5;
-      } else if (currentSpeed === 1.5) {
-        currentSpeed = 2;
-      } else {
-        currentSpeed = 1;
-      }
-      audio.playbackRate = currentSpeed;
-      speedBtn.textContent = currentSpeed + 'x';
-    }
+function toggleSpeed() {
+  if (currentSpeed === 1) {
+    currentSpeed = 1.5;
+  } else if (currentSpeed === 1.5) {
+    currentSpeed = 2;
+  } else if (currentSpeed === 2) {
+    currentSpeed = 2.5;
+  } else {
+    currentSpeed = 1;
+  }
+
+  audio.playbackRate = currentSpeed;
+  speedBtn.textContent = currentSpeed + 'x';
+}
+
 
     updateCounterDisplay();
     
-    // 添加觸摸設備支持
-    countEl.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      pressTimer = setTimeout(() => {
-        group = 0;
-        count = 0;
-        updateCounterDisplay();
-        save();
-      }, 2000);
-    });
+countEl.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  incrementCounter();
+});
 
-    countEl.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      clearTimeout(pressTimer);
-      incrementCounter();
-    });
   </script>
 </body>
 </html>
