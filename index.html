@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -48,6 +49,10 @@
       border-top: 2px solid #ccc;
       border-radius: 16px 16px 0 0;
       box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+	    /* 加上這兩行來對齊 tap-area 的寬度與 margin */
+  margin: 5px;
+  border-radius: 24px;
+	  
     }
 
     .calendar-screen.active {
@@ -113,22 +118,29 @@
       border: 2px solid var(--primary);
     }
 
-    .circle-btn {
-      position: fixed;
-      top: 10px;
-      background: #6b8797;
-      border-radius: 50%;
-      width: 44px;
-      height: 44px;
-      font-size: 1.2rem;
-      border: none;
-      color: #black;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      z-index: 1001;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+/* 修改按鈕樣式，強制顏色一致 */
+.circle-btn {
+  position: fixed;
+  top: 10px;
+  background: #6b8797;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 1.2rem;
+  border: none;
+  color: black !important;
+  -webkit-text-fill-color: black !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  overflow: hidden;
+}
+
+
+/* 如果需要，可以替換Emoji為SVG或自定義字體圖標 */
 
     .toggle-calendar-btn { right: 130px; }
     .reset-btn { right: 180px; }
@@ -144,14 +156,58 @@
       font-weight: bold;
       color: #333;
     }
+    
+    .date-update-toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      z-index: 2000;
+      animation: fadeInOut 3s forwards;
+      opacity: 0;
+    }
+    
+    @keyframes fadeInOut {
+      0% { opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+	
+.circle-btn img.icon {
+  width: 60%;
+  height: 60%;
+  object-fit: contain;
+  display: block;
+  margin: auto;
+}
+
+
+
   </style>
 </head>
 <body>
   <!-- 控制按鈕 -->
-  <button class="circle-btn play-btn" onclick="togglePlay()">▶</button>
-  <button class="circle-btn speed-btn" onclick="toggleSpeed()">1x</button>
-  <button class="circle-btn reset-btn">♻</button>
-  <button class="circle-btn toggle-calendar-btn" onclick="toggleCalendar()">🧾</button>
+<button class="circle-btn play-btn" onclick="togglePlay()">
+  <img src="playpause.png" alt="播放暫停" class="icon" />
+</button>
+
+<button class="circle-btn speed-btn" onclick="toggleSpeed()">1x</button>
+
+<button class="circle-btn reset-btn">
+  <img src="reset.png" alt="歸零" class="icon" />
+</button>
+
+<button class="circle-btn toggle-calendar-btn" onclick="toggleCalendar()">
+  <img src="calendar.png" alt="月曆" class="icon" />
+</button>
+
+
 
   <!-- 計數器 + 月曆區塊 -->
   <div id="counterScreen" class="counter-screen">
@@ -188,8 +244,9 @@
     const calendarBtn = document.querySelector('.toggle-calendar-btn');
     const resetBtn = document.querySelector('.reset-btn');
 
-    const today = new Date();
-    const todayKey = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+    // 日期相關變數
+    let today = new Date();
+    let todayKey = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
 
     let currentYear = today.getFullYear();
     let currentMonth = today.getMonth();
@@ -198,6 +255,64 @@
     let monthData = JSON.parse(localStorage.getItem('monthData')) || {};
     let count = parseInt(localStorage.getItem('count')) || 0;
     let group = parseInt(localStorage.getItem('group')) || 0;
+
+    // 自動檢查日期更新
+    function checkDateUpdate() {
+      const newDate = new Date();
+      const newDateKey = `${newDate.getFullYear()}-${newDate.getMonth() + 1}-${newDate.getDate()}`;
+      
+      if (newDateKey !== todayKey) {
+        // 顯示日期變更通知
+        showDateUpdateToast();
+        
+        // 更新日期相關變數
+        today = newDate;
+        todayKey = newDateKey;
+        currentYear = today.getFullYear();
+        currentMonth = today.getMonth();
+        
+        // 如果月曆是開啟的，更新月曆視圖
+        if (calendarScreen.classList.contains('active')) {
+          renderCalendar(currentYear, currentMonth);
+        }
+      }
+    }
+    
+    // 顯示日期更新提示
+    function showDateUpdateToast() {
+      const toast = document.createElement('div');
+      toast.className = 'date-update-toast';
+      toast.textContent = '日期已更新至今天';
+      document.body.appendChild(toast);
+      
+      // 3秒後自動移除提示
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
+    
+    // 設置定時檢查，每分鐘檢查一次日期
+    setInterval(checkDateUpdate, 60000);
+    
+    // 額外檢查：設置定時在每天午夜12:00:10檢查
+    function setMidnightCheck() {
+      const now = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 10, 0); // 設為午夜後10秒，確保日期已經完全變更
+      
+      const timeToMidnight = tomorrow - now;
+      
+      // 設置午夜檢查
+      setTimeout(() => {
+        checkDateUpdate();
+        // 設置下一天的檢查
+        setMidnightCheck();
+      }, timeToMidnight);
+    }
+    
+    // 初始化午夜檢查
+    setMidnightCheck();
 
     function save() {
       localStorage.setItem('count', count);
@@ -250,11 +365,29 @@
       lastResetClick = now;
     });
 
-    function toggleCalendar() {
-      const visible = calendarScreen.classList.toggle('active');
-      calendarBtn.textContent = visible ? '⬅' : '📅';
-      if (visible) renderCalendar(currentYear, currentMonth);
+function toggleCalendar() {
+  const visible = calendarScreen.classList.toggle('active');
+  const icon = calendarBtn.querySelector('img');
+
+  if (visible) {
+    icon.src = 'back.png';
+    icon.alt = '返回';
+
+    // ✅ 只在手機上禁用捲動
+    if (window.innerWidth <= 768) {
+      document.body.style.overflowY = 'hidden';
     }
+  } else {
+    icon.src = 'calendar.png';
+    icon.alt = '月曆';
+    document.body.style.overflowY = 'auto';
+  }
+
+  if (visible) renderCalendar(currentYear, currentMonth);
+}
+
+
+
 
     function getDaysInMonth(year, month) {
       return new Date(year, month + 1, 0).getDate();
@@ -334,6 +467,23 @@
     }
 
     updateCounterDisplay();
+    
+    // 添加觸摸設備支持
+    countEl.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      pressTimer = setTimeout(() => {
+        group = 0;
+        count = 0;
+        updateCounterDisplay();
+        save();
+      }, 2000);
+    });
+
+    countEl.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      clearTimeout(pressTimer);
+      incrementCounter();
+    });
   </script>
 </body>
 </html>
