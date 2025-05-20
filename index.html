@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -15,9 +14,7 @@
       --today: #dcefff;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body, html {
       margin: 0;
@@ -31,8 +28,7 @@
       margin: 5px;
       border-radius: 24px;
       background: var(--primary);
-   color: #dde6ee;
-
+      color: #dde6ee;
       font-size: 30vw;
       display: flex;
       justify-content: center;
@@ -47,17 +43,11 @@
       padding: 16px;
       background: var(--card);
       border-top: 2px solid #ccc;
-      border-radius: 16px 16px 0 0;
-      box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
-	    /* 加上這兩行來對齊 tap-area 的寬度與 margin */
-  margin: 5px;
-  border-radius: 24px;
-	  
+      border-radius: 24px;
+      margin: 5px;
     }
 
-    .calendar-screen.active {
-      display: block;
-    }
+    .calendar-screen.active { display: block; }
 
     .calendar-header {
       display: flex;
@@ -107,58 +97,36 @@
       box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
     }
 
-    .day .info {
-      font-size: 0.7rem;
-      color: #999;
-    }
-
-    .today {
-      background: var(--today);
+    .day .info { font-size: 0.7rem; color: #999; }
+    .today { background: var(--today); font-weight: bold; border: 2px solid var(--primary); }
+    .group-only .info, .group-only {
+      font-size: 1rem;
       font-weight: bold;
-      border: 2px solid var(--primary);
+      color: #f5a623;
     }
-	
-	.group-only .info {
-  font-size: 1rem;
-  font-weight: bold;
-  color: #f5a623; /* 醒目的橘色，你可以換成別的 */
-}
 
-.group-only {
-  font-size: 1rem;
-  font-weight: bold;
-  color: #f5a623;
-}
-
-	
-/* 修改按鈕樣式，強制顏色一致 */
-.circle-btn {
-  position: fixed;
-  top: 10px;
-  background: #6b8797;
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  font-size: 1.2rem;
-  border: none;
-  color: black !important;
-  -webkit-text-fill-color: black !important;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  z-index: 1001;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  overflow: hidden;
-}
-
-
-/* 如果需要，可以替換Emoji為SVG或自定義字體圖標 */
+    .circle-btn {
+      position: fixed;
+      top: 10px;
+      background: #6b8797;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      font-size: 1.2rem;
+      border: none;
+      color: black !important;
+      -webkit-text-fill-color: black !important;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      overflow: hidden;
+    }
 
     .toggle-calendar-btn { right: 110px; }
-    .reset-btn { right: 160px;
-  touch-action: manipulation; /* ✅ 新增這一行，避免雙擊縮放 */
-	}
+    .reset-btn { right: 160px; touch-action: manipulation; }
     .play-btn { right: 10px; }
     .speed-btn { right: 60px; font-size: 0.9rem; }
 
@@ -171,60 +139,54 @@
       font-weight: bold;
       color: #333;
     }
-    
-    .date-update-toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.7);
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      z-index: 2000;
-      animation: fadeInOut 3s forwards;
-      opacity: 0;
-    }
-    
-    @keyframes fadeInOut {
-      0% { opacity: 0; }
-      20% { opacity: 1; }
-      80% { opacity: 1; }
-      100% { opacity: 0; }
-    }
-	
-.circle-btn img.icon {
-  width: 60%;
-  height: 60%;
-  object-fit: contain;
-  display: block;
-  margin: auto;
+
+.date-update-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  z-index: 2000;
+  opacity: 0;
+  animation-fill-mode: forwards;
 }
 
 
 
+
+@keyframes fadeInOutDynamic {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+
+    .circle-btn img.icon {
+      width: 60%;
+      height: 60%;
+      object-fit: contain;
+      display: block;
+      margin: auto;
+    }
   </style>
 </head>
 <body>
   <!-- 控制按鈕 -->
-<button class="circle-btn play-btn" onclick="togglePlay()">
-  <img src="playpause.png" alt="播放暫停" class="icon" />
-</button>
-
-<button class="circle-btn speed-btn" onclick="toggleSpeed()">1x</button>
-
-<button class="circle-btn reset-btn">
-  <img src="reset.png" alt="歸零" class="icon" draggable="false" oncontextmenu="return false;" ontouchstart="event.preventDefault();" />
-
-</button>
-
-
-<button class="circle-btn toggle-calendar-btn" onclick="toggleCalendar()">
-  <img src="calendar.png" alt="月曆" class="icon" />
-</button>
-
-
+  <button class="circle-btn play-btn" onclick="togglePlay()">
+    <img src="playpause.png" alt="播放暫停" class="icon" />
+  </button>
+  <button class="circle-btn speed-btn" onclick="toggleSpeed()">1x</button>
+  <button class="circle-btn reset-btn">
+    <img src="reset.png" alt="歸零" class="icon" draggable="false" oncontextmenu="return false;" />
+  </button>
+  <button class="circle-btn toggle-calendar-btn" onclick="toggleCalendar()">
+    <img src="calendar.png" alt="月曆" class="icon" />
+  </button>
 
   <!-- 計數器 + 月曆區塊 -->
   <div id="counterScreen" class="counter-screen">
@@ -239,307 +201,260 @@
       </div>
       <div class="calendar-grid" id="calendarWeekdays"></div>
       <div class="calendar-grid" id="calendarDays"></div>
-      <div style="margin-top:8px;font-weight:bold;">本月組數：
-        <div class="monthly-box"><span id="monthlyTotal">0</span></div>
-      </div>
+      <div style="margin-top:8px; font-weight:bold; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap: wrap;">
+  <div>本月組數：<div class="monthly-box"><span id="monthlyTotal">0</span></div></div>
+  <div style="display:flex; gap:8px;">
+    <button onclick="exportData()" style="padding:4px 12px; border:none; border-radius:8px; background:#5a90b8; color:white; font-weight:bold;">備份</button>
+    <button onclick="importData()" style="padding:4px 12px; border:none; border-radius:8px; background:#5a90b8; color:white; font-weight:bold;">還原</button>
+  </div>
+</div>
+<textarea id="importArea" placeholder="貼上備份資料後，按「還原」鍵" style="width:100%;height:80px;margin-top:6px;display:none;resize:none;"></textarea>
     </div>
   </div>
-
   <audio id="bgm" loop>
     <source src="background.mp3" type="audio/mpeg">
   </audio>
-
   <script>
-    const countEl = document.getElementById('tapArea');
-    const calendarScreen = document.getElementById('calendarScreen');
-    const calendarDaysEl = document.getElementById('calendarDays');
-    const calendarWeekdaysEl = document.getElementById('calendarWeekdays');
-    const monthLabelEl = document.getElementById('monthLabel');
-    const monthlyTotalEl = document.getElementById('monthlyTotal');
-    const audio = document.getElementById('bgm');
-    const speedBtn = document.querySelector('.speed-btn');
-    const calendarBtn = document.querySelector('.toggle-calendar-btn');
-    const resetBtn = document.querySelector('.reset-btn');
+  const countEl = document.getElementById('tapArea');
+  const calendarScreen = document.getElementById('calendarScreen');
+  const calendarDaysEl = document.getElementById('calendarDays');
+  const calendarWeekdaysEl = document.getElementById('calendarWeekdays');
+  const monthLabelEl = document.getElementById('monthLabel');
+  const monthlyTotalEl = document.getElementById('monthlyTotal');
+  const audio = document.getElementById('bgm');
+  const speedBtn = document.querySelector('.speed-btn');
+  const calendarBtn = document.querySelector('.toggle-calendar-btn');
+  const resetBtn = document.querySelector('.reset-btn');
 
-    // 日期相關變數
-    let today = new Date();
-    let todayKey = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+  let today = new Date();
+  let todayKey = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+  let currentYear = today.getFullYear();
+  let currentMonth = today.getMonth();
+  let currentSpeed = 1;
 
-    let currentYear = today.getFullYear();
-    let currentMonth = today.getMonth();
-    let currentSpeed = 1;
+  let monthData = JSON.parse(localStorage.getItem('monthData')) || {};
+  let count = parseInt(localStorage.getItem('count')) || 0;
+  let group = parseInt(localStorage.getItem('group')) || 0;
 
-    let monthData = JSON.parse(localStorage.getItem('monthData')) || {};
-    let count = parseInt(localStorage.getItem('count')) || 0;
-    let group = parseInt(localStorage.getItem('group')) || 0;
 
-    // 自動檢查日期更新
+
+function showFloatingToast(message, duration = 5000) {
+  const toast = document.createElement('div');
+  toast.className = 'date-update-toast';
+toast.innerHTML = message;
+
+
+  // 動態指定動畫長度
+  toast.style.animation = `fadeInOutDynamic ${duration / 1000}s forwards`;
+
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), duration);
+}
+
+
 function checkDateUpdate() {
   const newDate = new Date();
-  const newDateKey = `${newDate.getFullYear()}-${newDate.getMonth() + 1}-${newDate.getDate()}`;
-
-  if (newDateKey !== todayKey) {
-    // ✅ 儲存昨天的資料
- monthData[todayKey] = { group };
+  const newKey = `${newDate.getFullYear()}-${newDate.getMonth() + 1}-${newDate.getDate()}`;
+  if (newKey !== todayKey) {
+    monthData[todayKey] = { group };
     localStorage.setItem('monthData', JSON.stringify(monthData));
-
-    // ✅ 更新成新的一天
     today = newDate;
-    todayKey = newDateKey;
+    todayKey = newKey;
     currentYear = today.getFullYear();
     currentMonth = today.getMonth();
-
-    // ✅ 歸零 group，但保留 count
     group = 0;
-
-    // 更新畫面
     updateCounterDisplay();
-    showDateUpdateToast();
-    save();
 
-    // 如果月曆開啟就更新畫面
-    if (calendarScreen.classList.contains('active')) {
-      renderCalendar(currentYear, currentMonth);
-    }
+    showFloatingToast('日期已更新至今天', 3000); // ✅ 替代舊的函式
+    save();
+    if (calendarScreen.classList.contains('active')) renderCalendar(currentYear, currentMonth);
   }
 }
 
-    
-    // 顯示日期更新提示
-    function showDateUpdateToast() {
-      const toast = document.createElement('div');
-      toast.className = 'date-update-toast';
-      toast.textContent = '日期已更新至今天';
-      document.body.appendChild(toast);
-      
-      // 3秒後自動移除提示
-      setTimeout(() => {
-        toast.remove();
-      }, 3000);
+
+  setInterval(checkDateUpdate, 60000);
+  function setMidnightCheck() {
+    const now = new Date();
+    const t = new Date(now);
+    t.setDate(t.getDate() + 1);
+    t.setHours(0, 0, 10, 0);
+    const delay = t - now;
+    setTimeout(() => {
+      checkDateUpdate();
+      setMidnightCheck();
+    }, delay);
+  }
+  setMidnightCheck();
+
+  function save() {
+    localStorage.setItem('count', count);
+    localStorage.setItem('group', group);
+    monthData[todayKey] = { count, group };
+    localStorage.setItem('monthData', JSON.stringify(monthData));
+    if (calendarScreen.classList.contains('active')) renderCalendar(currentYear, currentMonth);
+  }
+
+  function updateCounterDisplay() {
+    countEl.textContent = `${count} / ${group}`;
+  }
+
+  function incrementCounter() {
+    count++;
+    if (count >= 108) {
+      count = 0;
+      group++;
     }
-    
-    // 設置定時檢查，每分鐘檢查一次日期
-    setInterval(checkDateUpdate, 60000);
-    
-    // 額外檢查：設置定時在每天午夜12:00:10檢查
-    function setMidnightCheck() {
-      const now = new Date();
-      const tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(0, 0, 10, 0); // 設為午夜後10秒，確保日期已經完全變更
-      
-      const timeToMidnight = tomorrow - now;
-      
-      // 設置午夜檢查
-      setTimeout(() => {
-        checkDateUpdate();
-        // 設置下一天的檢查
-        setMidnightCheck();
-      }, timeToMidnight);
-    }
-    
-    // 初始化午夜檢查
-    setMidnightCheck();
+    updateCounterDisplay();
+    save();
+  }
 
-    function save() {
-      localStorage.setItem('count', count);
-      localStorage.setItem('group', group);
-      monthData[todayKey] = { count, group };
-      localStorage.setItem('monthData', JSON.stringify(monthData));
-      if (calendarScreen.classList.contains('active')) {
-        renderCalendar(currentYear, currentMonth);
-      }
-    }
+  countEl.addEventListener('pointerup', e => {
+    e.preventDefault();
+    incrementCounter();
+  });
 
-    function updateCounterDisplay() {
-      countEl.textContent = `${count} / ${group}`;
-    }
-
-    function incrementCounter() {
-      count++;
-      if (count >= 108) {
-        count = 0;
-        group++;
-      }
-      updateCounterDisplay();
-      save();
-    }
-
-
-    countEl.addEventListener('mouseup', () => {
-      clearTimeout(pressTimer);
-    });
-
-    countEl.addEventListener('click', () => {
-      incrementCounter();
-    });
-
- // ✅ 新增這段，長按 resetBtn 1.2 秒才會歸零 count
-let pressTimer;
-// 手機
-resetBtn.addEventListener('touchstart', () => {
+  let pressTimer;
+resetBtn.addEventListener('pointerdown', () => {
   pressTimer = setTimeout(() => {
     count = 0;
     updateCounterDisplay();
     save();
-    showResetToast();
+    showFloatingToast('已歸零計數', 3000);
   }, 1200);
 });
-resetBtn.addEventListener('touchend', () => {
-  clearTimeout(pressTimer);
-});
-
-// 電腦
-resetBtn.addEventListener('mousedown', () => {
-  pressTimer = setTimeout(() => {
-    count = 0;
-    updateCounterDisplay();
-    save();
-    showResetToast();
-  }, 1200);
-});
-resetBtn.addEventListener('mouseup', () => {
-  clearTimeout(pressTimer);
-});
 
 
 
-function toggleCalendar() {
-  const visible = calendarScreen.classList.toggle('active');
-  const icon = calendarBtn.querySelector('img');
 
-  if (visible) {
-    icon.src = 'back.png';
-    icon.alt = '返回';
-    // ✅ 不再限制 overflow，讓捲動條可以自然出現
-  } else {
-    icon.src = 'calendar.png';
-    icon.alt = '月曆';
+
+
+    
+  resetBtn.addEventListener('pointerup', () => {
+    clearTimeout(pressTimer);
+  });
+
+  function toggleCalendar() {
+    const visible = calendarScreen.classList.toggle('active');
+    const icon = calendarBtn.querySelector('img');
+    icon.src = visible ? 'back.png' : 'calendar.png';
+    icon.alt = visible ? '返回' : '月曆';
+    if (visible) renderCalendar(currentYear, currentMonth);
   }
 
-  if (visible) renderCalendar(currentYear, currentMonth);
-}
+  function getDaysInMonth(y, m) {
+    return new Date(y, m + 1, 0).getDate();
+  }
 
+  function renderCalendar(y, m) {
+    calendarDaysEl.innerHTML = '';
+    calendarWeekdaysEl.innerHTML = '';
+    ['一','二','三','四','五','六','日'].forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'weekday';
+      el.textContent = d;
+      calendarWeekdaysEl.appendChild(el);
+    });
 
+    const days = getDaysInMonth(y, m);
+    const firstDay = new Date(y, m, 1).getDay();
+    const offset = firstDay === 0 ? 6 : firstDay - 1;
+    let total = 0;
+    for (let i = 0; i < offset; i++) calendarDaysEl.appendChild(document.createElement('div'));
 
-
-
-    function getDaysInMonth(year, month) {
-      return new Date(year, month + 1, 0).getDate();
-    }
-
-    function renderCalendar(year, month) {
-      calendarDaysEl.innerHTML = '';
-      calendarWeekdaysEl.innerHTML = '';
-      const weekdays = ['一', '二', '三', '四', '五', '六', '日'];
-      weekdays.forEach(day => {
-        const el = document.createElement('div');
-        el.className = 'weekday';
-        el.textContent = day;
-        calendarWeekdaysEl.appendChild(el);
-      });
-
-      const days = getDaysInMonth(year, month);
-      const firstDay = new Date(year, month, 1).getDay();
-      const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1;
-      let monthlyTotal = 0;
-      for (let i = 0; i < adjustedFirstDay; i++) {
-        calendarDaysEl.appendChild(document.createElement('div'));
-      }
     for (let i = 1; i <= days; i++) {
-  const key = `${year}-${month + 1}-${i}`;
-  const d = document.createElement('div');
-  d.className = 'day';
+      const key = `${y}-${m + 1}-${i}`;
+      const d = document.createElement('div');
+      d.className = 'day';
+      const dateObj = new Date(y, m, i);
+      const isToday = key === todayKey;
+      const isFuture = dateObj > new Date();
+      const isPast = !isToday && !isFuture;
+      const data = monthData[key];
+      let infoHTML = '';
 
-  const dateObj = new Date(year, month, i);
-  const isToday = key === todayKey;
-  const isFuture = dateObj > new Date();
-  const isPast = !isToday && !isFuture;
-
-  const data = monthData[key];
-  let infoHTML = "";
-
-  if (isToday) {
-    // ✅ 今天：顯示 count/group
-    d.classList.add('today');
-    infoHTML = `${count}/${group}`;
-  } else if (isPast) {
-    // ✅ 過去：只顯示 group，僅當 group > 0 才顯示
-    const groupOnly = data?.group || 0;
-    if (groupOnly > 0) {
-      infoHTML = `<span class="group-only">${groupOnly}</span>`;
-    }
-    monthlyTotal += groupOnly;
-  } else {
-    // ✅ 未來：顯示 count/group，即便為 0/0
-    const showCount = data?.count ?? 0;
-    const showGroup = data?.group ?? 0;
-    infoHTML = `${showCount}/${showGroup}`;
-  }
-
-  d.innerHTML = `${i}<div class="info">${infoHTML}</div>`;
-  calendarDaysEl.appendChild(d);
-}
-
-      monthLabelEl.textContent = `${year} 年 ${month + 1} 月`;
-      monthlyTotalEl.textContent = monthlyTotal;
-    }
-
-    function changeMonth(offset) {
-      currentMonth += offset;
-      if (currentMonth < 0) {
-        currentMonth = 11;
-        currentYear--;
-      } else if (currentMonth > 11) {
-        currentMonth = 0;
-        currentYear++;
-      }
-      renderCalendar(currentYear, currentMonth);
-    }
-
-function resetData() {
-  count = 0; // ✅ 只歸零 count
-  updateCounterDisplay();
-  save();
-}
-
-    function togglePlay() {
-      if (audio.paused) {
-        audio.play();
-        document.querySelector('.play-btn').textContent = '❚❚';
+      if (isToday) {
+        d.classList.add('today');
+        infoHTML = `${count}/${group}`;
+        total += group;
+      } else if (isPast) {
+        const g = data?.group || 0;
+        if (g > 0) infoHTML = `<span class="group-only">${g}</span>`;
+        total += g;
       } else {
-        audio.pause();
-        document.querySelector('.play-btn').textContent = '▶';
+        const c = data?.count ?? 0;
+        const g = data?.group ?? 0;
+        infoHTML = `${c}/${g}`;
       }
+      d.innerHTML = `${i}<div class="info">${infoHTML}</div>`;
+      calendarDaysEl.appendChild(d);
     }
-
-function toggleSpeed() {
-  if (currentSpeed === 1) {
-    currentSpeed = 1.5;
-  } else if (currentSpeed === 1.5) {
-    currentSpeed = 2;
-  } else if (currentSpeed === 2) {
-    currentSpeed = 2.5;
-  } else {
-    currentSpeed = 1;
+    monthLabelEl.textContent = `${y} 年 ${m + 1} 月`;
+    monthlyTotalEl.textContent = total;
   }
 
-  audio.playbackRate = currentSpeed;
-  speedBtn.textContent = currentSpeed + 'x';
+  function changeMonth(offset) {
+    currentMonth += offset;
+    if (currentMonth < 0) {
+      currentMonth = 11;
+      currentYear--;
+    } else if (currentMonth > 11) {
+      currentMonth = 0;
+      currentYear++;
+    }
+    renderCalendar(currentYear, currentMonth);
+  }
+
+  function togglePlay() {
+    if (audio.paused) audio.play();
+    else audio.pause();
+  }
+
+  function toggleSpeed() {
+    if (currentSpeed === 1) currentSpeed = 1.5;
+    else if (currentSpeed === 1.5) currentSpeed = 2;
+    else if (currentSpeed === 2) currentSpeed = 2.5;
+    else if (currentSpeed === 2.5) currentSpeed = 3;
+    else currentSpeed = 1;
+    audio.playbackRate = currentSpeed;
+    speedBtn.textContent = currentSpeed + 'x';
+  }
+
+function exportData() {
+  const allData = {
+    count,
+    group,
+    monthData
+  };
+  const json = JSON.stringify(allData);
+  navigator.clipboard.writeText(json).then(() => {
+    showFloatingToast('✅ 資料已複製<br>開啟 Gmail，貼上內容並寄給自己做備份', 10000)  });//10秒
 }
 
 
-    updateCounterDisplay();
-    
-countEl.addEventListener('touchend', (e) => {
-  e.preventDefault();
-  incrementCounter();
-});
 
+  function importData() {
+    const textarea = document.getElementById('importArea');
+    if (textarea.style.display === 'none') {
+      textarea.style.display = 'block';
+      textarea.focus();
+      return;
+    }
+    const input = document.getElementById('importArea').value;
+    try {
+      const parsed = JSON.parse(input);
+      count = parsed.count || 0;
+      group = parsed.group || 0;
+      monthData = parsed.monthData || {};
+      save();
+      updateCounterDisplay();
+      showFloatingToast('✅ 還原成功', 5000);//5秒
+    } catch {
+      showFloatingToast('⚠️ 格式錯誤，請確認貼上的資料', 5000);//5秒
+    }
+  }
 
-
-
-
-  </script>
+  updateCounterDisplay();
+</script>
 </body>
 </html>
+
