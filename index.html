@@ -23,6 +23,17 @@
       font-family: "Helvetica Neue", sans-serif;
     }
 
+.icon-bg {
+  width: 60%;
+  height: 60%;
+  background-image: url('reset.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+
+
     .counter-screen .tap-area {
       height: calc(100vh - 10px);
       margin: 5px;
@@ -181,9 +192,10 @@
     <img src="playpause.png" alt="播放暫停" class="icon" />
   </button>
   <button class="circle-btn speed-btn" onclick="toggleSpeed()">1x</button>
-  <button class="circle-btn reset-btn">
-    <img src="reset.png" alt="歸零" class="icon" draggable="false" oncontextmenu="return false;" />
-  </button>
+<button class="circle-btn reset-btn">
+  <div class="icon-bg" draggable="false" oncontextmenu="return false;"></div>
+</button>
+
   <button class="circle-btn toggle-calendar-btn" onclick="toggleCalendar()">
     <img src="calendar.png" alt="月曆" class="icon" />
   </button>
