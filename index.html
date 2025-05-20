@@ -117,7 +117,20 @@
       font-weight: bold;
       border: 2px solid var(--primary);
     }
+	
+	.group-only .info {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #f5a623; /* 醒目的橘色，你可以換成別的 */
+}
 
+.group-only {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #f5a623;
+}
+
+	
 /* 修改按鈕樣式，強制顏色一致 */
 .circle-btn {
   position: fixed;
@@ -261,26 +274,36 @@
     let group = parseInt(localStorage.getItem('group')) || 0;
 
     // 自動檢查日期更新
-    function checkDateUpdate() {
-      const newDate = new Date();
-      const newDateKey = `${newDate.getFullYear()}-${newDate.getMonth() + 1}-${newDate.getDate()}`;
-      
-      if (newDateKey !== todayKey) {
-        // 顯示日期變更通知
-        showDateUpdateToast();
-        
-        // 更新日期相關變數
-        today = newDate;
-        todayKey = newDateKey;
-        currentYear = today.getFullYear();
-        currentMonth = today.getMonth();
-        
-        // 如果月曆是開啟的，更新月曆視圖
-        if (calendarScreen.classList.contains('active')) {
-          renderCalendar(currentYear, currentMonth);
-        }
-      }
+function checkDateUpdate() {
+  const newDate = new Date();
+  const newDateKey = `${newDate.getFullYear()}-${newDate.getMonth() + 1}-${newDate.getDate()}`;
+
+  if (newDateKey !== todayKey) {
+    // ✅ 儲存昨天的資料
+ monthData[todayKey] = { group };
+    localStorage.setItem('monthData', JSON.stringify(monthData));
+
+    // ✅ 更新成新的一天
+    today = newDate;
+    todayKey = newDateKey;
+    currentYear = today.getFullYear();
+    currentMonth = today.getMonth();
+
+    // ✅ 歸零 group，但保留 count
+    group = 0;
+
+    // 更新畫面
+    updateCounterDisplay();
+    showDateUpdateToast();
+    save();
+
+    // 如果月曆開啟就更新畫面
+    if (calendarScreen.classList.contains('active')) {
+      renderCalendar(currentYear, currentMonth);
     }
+  }
+}
+
     
     // 顯示日期更新提示
     function showDateUpdateToast() {
@@ -423,16 +446,41 @@ function toggleCalendar() {
       for (let i = 0; i < adjustedFirstDay; i++) {
         calendarDaysEl.appendChild(document.createElement('div'));
       }
-      for (let i = 1; i <= days; i++) {
-        const key = `${year}-${month + 1}-${i}`;
-        const d = document.createElement('div');
-        d.className = 'day';
-        if (key === todayKey) d.classList.add('today');
-        const data = monthData[key] || { count: 0, group: 0 };
-        d.innerHTML = `${i}<div class="info">${data.count}/${data.group}</div>`;
-        calendarDaysEl.appendChild(d);
-        monthlyTotal += data.group;
-      }
+    for (let i = 1; i <= days; i++) {
+  const key = `${year}-${month + 1}-${i}`;
+  const d = document.createElement('div');
+  d.className = 'day';
+
+  const dateObj = new Date(year, month, i);
+  const isToday = key === todayKey;
+  const isFuture = dateObj > new Date();
+  const isPast = !isToday && !isFuture;
+
+  const data = monthData[key];
+  let infoHTML = "";
+
+  if (isToday) {
+    // ✅ 今天：顯示 count/group
+    d.classList.add('today');
+    infoHTML = `${count}/${group}`;
+  } else if (isPast) {
+    // ✅ 過去：只顯示 group，僅當 group > 0 才顯示
+    const groupOnly = data?.group || 0;
+    if (groupOnly > 0) {
+      infoHTML = `<span class="group-only">${groupOnly}</span>`;
+    }
+    monthlyTotal += groupOnly;
+  } else {
+    // ✅ 未來：顯示 count/group，即便為 0/0
+    const showCount = data?.count ?? 0;
+    const showGroup = data?.group ?? 0;
+    infoHTML = `${showCount}/${showGroup}`;
+  }
+
+  d.innerHTML = `${i}<div class="info">${infoHTML}</div>`;
+  calendarDaysEl.appendChild(d);
+}
+
       monthLabelEl.textContent = `${year} 年 ${month + 1} 月`;
       monthlyTotalEl.textContent = monthlyTotal;
     }
@@ -487,6 +535,10 @@ countEl.addEventListener('touchend', (e) => {
   e.preventDefault();
   incrementCounter();
 });
+
+
+
+
 
   </script>
 </body>
