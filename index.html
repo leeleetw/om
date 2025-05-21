@@ -329,10 +329,26 @@ function checkDateUpdate() {
     save();
   }
 
-  countEl.addEventListener('pointerup', e => {
-    e.preventDefault();
-    incrementCounter();
-  });
+let lastTapTime = 0;
+const tapArea = document.getElementById('tapArea');
+
+tapArea.addEventListener('touchstart', (e) => {
+  e.preventDefault(); // 禁止瀏覽器預設滑動與雙擊縮放
+}, { passive: false });
+
+tapArea.addEventListener('touchend', (e) => {
+  const currentTime = new Date().getTime();
+  const tapGap = currentTime - lastTapTime;
+
+  if (tapGap < 300) {
+    e.preventDefault(); // 阻止雙擊放大
+    return;
+  }
+
+  lastTapTime = currentTime;
+  incrementCounter();
+});
+
 
   let pressTimer;
 resetBtn.addEventListener('pointerdown', () => {
