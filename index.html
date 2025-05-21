@@ -328,26 +328,25 @@ function checkDateUpdate() {
     updateCounterDisplay();
     save();
   }
-// 📌 加入快速反應與防雙擊縮放邏輯
+// 📌 更快的點擊響應：用 pointerdown 替代 touchstart
 let lastTapTime = 0;
 const tapArea = document.getElementById('tapArea');
 
-// 手機觸控立即計數 + 防雙擊縮放
-tapArea.addEventListener('touchstart', (e) => {
-  e.preventDefault(); // 禁止滑動與雙擊縮放
+tapArea.addEventListener('pointerdown', (e) => {
   const currentTime = new Date().getTime();
   const tapGap = currentTime - lastTapTime;
 
   if (tapGap < 300) {
-    return; // 雙擊防重複觸發
+    return; // 防止快速雙擊誤觸
   }
 
   lastTapTime = currentTime;
   incrementCounter();
-}, { passive: false });
+});
 
-// 桌機支援 click 點擊
+// 桌機 click 備援（可有可無）
 tapArea.addEventListener('click', incrementCounter);
+
 
 
 
