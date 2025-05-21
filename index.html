@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>counter</title>
+<!-- iOS Safari 主畫面 icon -->
+<link rel="apple-touch-icon" href="icon.png">
+
+<!-- Android Chrome 主畫面 icon fallback -->
+<link rel="icon" type="image/png" sizes="192x192" href="icon.png">
   <style>
   
   .heart-svg-wrapper {
@@ -130,25 +135,20 @@ height: calc(100dvh - 10px);
   align-items: center;
   justify-content: center;
   text-align: center;
-
-  padding: 2vh 4vw;
-  line-height: 1.1;
 }
 
 .count-number {
-  font-size: clamp(20vw, 28vw, 32vw); /* 響應式主數字 */
-  font-weight: bold;
+  font-size: 28vw; /* 主數字大小，依手機寬度調整 */
   line-height: 1;
 }
 
 .group-number {
-  font-size: clamp(4vw, 5vw, 6vw);   /* 響應式小字 */
+  font-size: 6vw;  /* 縮小的 group */
   align-self: flex-end;
-  margin-top: 0.3em;
-  margin-right: clamp(12vw, 18vw, 25vw);  /* 根據螢幕寬度自動控制距邊距 */
+  margin-top: 0.2em;
+  margin-right: 20vw; 
   opacity: 0.8;
 }
-
 
 
     .calendar-screen {
