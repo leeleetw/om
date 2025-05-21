@@ -329,26 +329,11 @@ function checkDateUpdate() {
     save();
   }
 // 📌 更快的點擊響應：用 pointerdown 替代 touchstart
-let lastTapTime = 0;
 const tapArea = document.getElementById('tapArea');
 
 tapArea.addEventListener('pointerdown', (e) => {
-  const currentTime = new Date().getTime();
-  const tapGap = currentTime - lastTapTime;
-
-  if (tapGap < 300) {
-    return; // 防止快速雙擊誤觸
-  }
-
-  lastTapTime = currentTime;
   incrementCounter();
 });
-
-// 桌機 click 備援（可有可無）
-tapArea.addEventListener('click', incrementCounter);
-
-
-
 
 
   let pressTimer;
