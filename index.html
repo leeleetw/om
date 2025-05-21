@@ -501,6 +501,19 @@ document.addEventListener('touchend', function (event) {
   lastTouchEnd = now;
 }, false);
 
+// ✅ 全面攔截長按選單（圖片另存、文字選取等）
+document.addEventListener('contextmenu', event => event.preventDefault());
+
+document.addEventListener('touchstart', function (e) {
+  if (e.touches.length > 1) return; // 多指操作例外
+  this._touchStartTime = Date.now();
+}, { passive: false });
+
+document.addEventListener('touchend', function (e) {
+  const duration = Date.now() - (this._touchStartTime || 0);
+  if (duration > 500) e.preventDefault(); // 長按才攔截
+}, { passive: false });
+
   
 </script>
 </body>
