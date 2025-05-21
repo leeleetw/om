@@ -185,6 +185,36 @@ height: calc(100dvh - 10px);
 }
 
 
+.heart {
+  position: absolute;
+  font-size: 2rem;
+  color: rgba(255, 100, 130, 0.8);
+  animation: heart-fade 1s ease-out forwards;
+  pointer-events: none;
+  user-select: none;
+  z-index: 9999;
+
+  transform: rotate(var(--angle)) scale(var(--scale)) translateY(0); /* 這行是關鍵 */
+}
+
+@keyframes heart-fade {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--angle)) scale(var(--scale)) translateY(0);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--angle)) scale(var(--scale)) translateY(-60px);
+  }
+}
+
+
+
+
+
     .circle-btn img.icon {
       width: 60%;
       height: 60%;
@@ -342,7 +372,7 @@ function checkDateUpdate() {
     countEl.textContent = `${count} / ${group}`;
   }
 
-  function incrementCounter() {
+function incrementCounter(e) {
     count++;
     if (count >= 108) {
       count = 0;
@@ -350,13 +380,16 @@ function checkDateUpdate() {
     }
     updateCounterDisplay();
     save();
+	  showHeart(e);
+
   }
 // 📌 更快的點擊響應：用 pointerdown 替代 touchstart
 const tapArea = document.getElementById('tapArea');
 
 tapArea.addEventListener('pointerdown', (e) => {
-  incrementCounter();
+  incrementCounter(e);
 });
+
 
 
   let pressTimer;
@@ -500,6 +533,31 @@ function exportData() {
   }
 
   updateCounterDisplay();
+  
+function showHeart(e) {
+  const heart = document.createElement('div');
+  heart.className = 'heart';
+const hearts = ['🧡', '💕', '💜', '💗', '💛'];
+heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+
+
+  const angle = (Math.random() * 60) - 30; // -30~+30度
+  const scale = 0.9 + Math.random() * 0.4; // 0.9~1.3倍
+
+  heart.style.left = `${e.clientX}px`;
+  heart.style.top = `${e.clientY}px`;
+
+  // 把變化值記錄下來，交給動畫時使用
+  heart.style.setProperty('--angle', `${angle}deg`);
+  heart.style.setProperty('--scale', scale);
+
+  document.body.appendChild(heart);
+  setTimeout(() => heart.remove(), 1000);
+}
+
+
+  
+  
   
   // 防止 iOS/Android 雙擊放大
 let lastTouchEnd = 0;
