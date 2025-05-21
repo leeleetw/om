@@ -5,6 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>counter</title>
   <style>
+  
+  .heart-svg-wrapper {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  transform: rotate(var(--angle)) scale(var(--scale)) translateY(0);
+  animation: heart-fade 1s ease-out forwards;
+  pointer-events: none;
+  user-select: none;
+  z-index: 9999;
+  color: #d27474; /* 你可改成任何你想要的顏色，或動態設定 */
+}
+
+  
+  
     :root {
       --bg: #f2f6f8;
       --primary: #5a90b8;
@@ -535,25 +550,42 @@ function exportData() {
   updateCounterDisplay();
   
 function showHeart(e) {
-  const heart = document.createElement('div');
-  heart.className = 'heart';
-const hearts = ['🧡', '💕', '💜', '💗', '💛'];
-heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+  const wrapper = document.createElement('div');
+  wrapper.className = 'heart-svg-wrapper';
 
+  // SVG 可變色描邊愛心
+  wrapper.innerHTML = `
+    <svg width="40" height="40" viewBox="0 0 24 24"
+         fill="none" stroke="currentColor" stroke-width="2"
+         xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 19.5C12 19.5 3.5 13.2 3.5 8.4C3.5 5.8 5.7 4 8.1 4C9.8 4 11.1 4.9 12 6.2C12.9 4.9 14.2 4 15.9 4C18.3 4 20.5 5.8 20.5 8.4C20.5 13.2 12 19.5 12 19.5Z"/>
+    </svg>
+  `;
 
-  const angle = (Math.random() * 60) - 30; // -30~+30度
-  const scale = 0.9 + Math.random() * 0.4; // 0.9~1.3倍
+  const angle = (Math.random() * 60) - 30;
+  const scale = 1 + Math.random() * 5;
+const colors = [
+  '#d8a7a7', // 鵝絨粉
+  '#a8b5a2', // 鼠尾草綠
+  '#b7aab6', // 霧紫灰
+  '#8c9fae', // 煙燻藍
+  '#e7e2dc', // 米白灰
+  '#d5b19e', // 乾燥橙
+  '#a8a29e', // 岩礦灰
+  '#998c6b'  // 抹茶煙褐
+];
 
-  heart.style.left = `${e.clientX}px`;
-  heart.style.top = `${e.clientY}px`;
+wrapper.style.color = colors[Math.floor(Math.random() * colors.length)];
 
-  // 把變化值記錄下來，交給動畫時使用
-  heart.style.setProperty('--angle', `${angle}deg`);
-  heart.style.setProperty('--scale', scale);
+  wrapper.style.left = `${e.clientX}px`;
+  wrapper.style.top = `${e.clientY}px`;
+  wrapper.style.setProperty('--angle', `${angle}deg`);
+  wrapper.style.setProperty('--scale', scale);
 
-  document.body.appendChild(heart);
-  setTimeout(() => heart.remove(), 1000);
+  document.body.appendChild(wrapper);
+  setTimeout(() => wrapper.remove(), 1000);
 }
+
 
 
   
