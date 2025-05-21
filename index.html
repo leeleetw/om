@@ -47,7 +47,11 @@
       text-align: center;
       user-select: none;
       transition: background 0.3s;
-    }
+      touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
 
     .calendar-screen {
       display: none;
@@ -193,7 +197,12 @@
   </button>
   <button class="circle-btn speed-btn" onclick="toggleSpeed()">1x</button>
 <button class="circle-btn reset-btn">
-  <div class="icon-bg" draggable="false" oncontextmenu="return false;"></div>
+<div class="icon-bg"
+     draggable="false"
+     oncontextmenu="return false"
+     ontouchstart="event.preventDefault()"
+     style="user-select: none; -webkit-user-drag: none;"></div>
+
 </button>
 
   <button class="circle-btn toggle-calendar-btn" onclick="toggleCalendar()">
