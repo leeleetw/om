@@ -551,40 +551,49 @@ function exportData() {
   
 function showHeart(e) {
   const wrapper = document.createElement('div');
-  wrapper.className = 'heart-svg-wrapper';
+  wrapper.className = 'heart';
+  
+  // 隨機顏色（以你指定的莫蘭迪色為例）
+  const colors = [
+    '#d8a7a7', '#a8b5a2', '#b7aab6', '#8c9fae',
+    '#e7e2dc', '#d5b19e', '#a8a29e', '#998c6b'
+  ];
+  wrapper.style.color = colors[Math.floor(Math.random() * colors.length)];
 
-  // SVG 可變色描邊愛心
-  wrapper.innerHTML = `
-    <svg width="40" height="40" viewBox="0 0 24 24"
-         fill="none" stroke="currentColor" stroke-width="2"
-         xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 19.5C12 19.5 3.5 13.2 3.5 8.4C3.5 5.8 5.7 4 8.1 4C9.8 4 11.1 4.9 12 6.2C12.9 4.9 14.2 4 15.9 4C18.3 4 20.5 5.8 20.5 8.4C20.5 13.2 12 19.5 12 19.5Z"/>
-    </svg>
-  `;
+  // 隨機角度與縮放
+  const angle = (Math.random() * 60 - 30).toFixed(1);
+  const scale = (1 + Math.random() * 3).toFixed(2);
+  const offsetX = (Math.random() * 20 - 10).toFixed(1); // 水平偏移
 
-  const angle = (Math.random() * 60) - 30;
-  const scale = 1 + Math.random() * 5;
-const colors = [
-  '#d8a7a7', // 鵝絨粉
-  '#a8b5a2', // 鼠尾草綠
-  '#b7aab6', // 霧紫灰
-  '#8c9fae', // 煙燻藍
-  '#e7e2dc', // 米白灰
-  '#d5b19e', // 乾燥橙
-  '#a8a29e', // 岩礦灰
-  '#998c6b'  // 抹茶煙褐
-];
-
-wrapper.style.color = colors[Math.floor(Math.random() * colors.length)];
+  wrapper.style.setProperty('--angle', `${angle}deg`);
+  wrapper.style.setProperty('--scale', scale);
+  wrapper.style.setProperty('--x', `${offsetX}px`);
 
   wrapper.style.left = `${e.clientX}px`;
   wrapper.style.top = `${e.clientY}px`;
-  wrapper.style.setProperty('--angle', `${angle}deg`);
-  wrapper.style.setProperty('--scale', scale);
+
+  // ✅ 插入愛心 SVG，內含 +1 文字
+  wrapper.innerHTML = `
+<svg width="40" height="40" viewBox="0 0 24 24"
+     fill="none" stroke="currentColor" stroke-width="2"
+     xmlns="http://www.w3.org/2000/svg">
+  <path d="M12 19.5C12 19.5 3.5 13.2 3.5 8.4C3.5 5.8 5.7 4 8.1 4
+           C9.8 4 11.1 4.9 12 6.2C12.9 4.9 14.2 4 15.9 4
+           C18.3 4 20.5 5.8 20.5 8.4C20.5 13.2 12 19.5 12 19.5Z"/>
+  <text x="12" y="13.5"
+        text-anchor="middle"
+        font-size="6"
+        fill="currentColor"
+        stroke="none"
+        font-weight="bold">+1</text>
+</svg>
+
+  `;
 
   document.body.appendChild(wrapper);
-  setTimeout(() => wrapper.remove(), 1000);
+  setTimeout(() => wrapper.remove(), 2000);
 }
+
 
 
 
