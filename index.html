@@ -193,9 +193,19 @@ height: calc(100dvh - 10px);
       margin: auto;
     }
 	
-	html, body {
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  font-family: "Helvetica Neue", sans-serif;
   overscroll-behavior: none;
   touch-action: manipulation;
+
+  /* 以下是新增的，針對手機防止長按選單 */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 	
@@ -501,18 +511,36 @@ document.addEventListener('touchend', function (event) {
   lastTouchEnd = now;
 }, false);
 
-// ✅ 全面攔截長按選單（圖片另存、文字選取等）
-document.addEventListener('contextmenu', event => event.preventDefault());
+// ✅ 全頁攔截右鍵與長按選單（iOS + Android）
+document.addEventListener('contextmenu', e => e.preventDefault(), true);
 
-document.addEventListener('touchstart', function (e) {
-  if (e.touches.length > 1) return; // 多指操作例外
+document.addEventListener('touchstart', e => {
+  if (e.touches.length > 1) return; // 忽略多指操作
   this._touchStartTime = Date.now();
 }, { passive: false });
 
-document.addEventListener('touchend', function (e) {
+document.addEventListener('touchend', e => {
   const duration = Date.now() - (this._touchStartTime || 0);
   if (duration > 500) e.preventDefault(); // 長按才攔截
 }, { passive: false });
+
+// ✅ 歸零鍵圖示額外防護（防止圖片長按被儲存）
+const iconBg = document.querySelector('.icon-bg');
+if (iconBg) {
+  iconBg.addEventListener('touchstart', e => {
+    e.preventDefault();
+    iconBg._longPressTimer = setTimeout(() => {}, 99999);
+  }, { passive: false });
+
+  iconBg.addEventListener('touchend', e => {
+    clearTimeout(iconBg._longPressTimer);
+  }, { passive: false });
+
+  iconBg.addEventListener('contextmenu', e => e.preventDefault());
+  iconBg.addEventListener('pointerdown', e => e.preventDefault());
+  iconBg.addEventListener('mousedown', e => e.preventDefault());
+  iconBg.addEventListener('dragstart', e => e.preventDefault());
+}
 
   
 </script>
