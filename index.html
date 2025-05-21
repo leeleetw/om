@@ -5,10 +5,8 @@
   <!-- iOS 全螢幕支援 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<!-- 自動切換狀態列顏色 -->
-<meta name="theme-color" content="white" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)">
-
+<!-- 主題顏色會由 JS 動態設定 -->
+<meta name="theme-color" content="white" id="theme-color-meta">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>counter</title>
@@ -762,6 +760,20 @@ if (localStorage.getItem('theme') === 'dark') {
   document.documentElement.classList.add('dark-mode'); // ✅ 加在 <html> 而非 <body>
 }
 
+function setThemeColor(scheme) {
+  const color = scheme === 'dark' ? '#111111' : 'white';
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', color);
+}
+
+// 首次設定
+const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+setThemeColor(prefersDark.matches ? 'dark' : 'light');
+
+// 即時監聽主題變化（若系統切換）
+prefersDark.addEventListener('change', e => {
+  setThemeColor(e.matches ? 'dark' : 'light');
+});
 
   
 </script>
