@@ -124,6 +124,31 @@ height: calc(100dvh - 10px);
   box-sizing: border-box;
 }
 
+.tap-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  padding: 2vh 4vw;
+  line-height: 1.1;
+}
+
+.count-number {
+  font-size: clamp(20vw, 28vw, 32vw); /* 響應式主數字 */
+  font-weight: bold;
+  line-height: 1;
+}
+
+.group-number {
+  font-size: clamp(4vw, 5vw, 6vw);   /* 響應式小字 */
+  align-self: flex-end;
+  margin-top: 0.3em;
+  margin-right: clamp(12vw, 18vw, 25vw);  /* 根據螢幕寬度自動控制距邊距 */
+  opacity: 0.8;
+}
+
 
 
     .calendar-screen {
@@ -202,7 +227,7 @@ height: calc(100dvh - 10px);
       height: 44px;
       font-size: 1.2rem;
       border: none;
-      color: black !important;
+      color: black !importantf;
       -webkit-text-fill-color: black !important;
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
       z-index: 1001;
@@ -214,9 +239,11 @@ height: calc(100dvh - 10px);
     }
 
     .toggle-calendar-btn { right: 110px; }
-    .reset-btn { right: 160px; touch-action: manipulation; }
+    .reset-btn { left: 10px; touch-action: manipulation; }
     .play-btn { right: 10px; }
     .speed-btn { right: 60px; font-size: 0.9rem; }
+	.theme-btn { right: 160px; /* 根據其他按鈕調整 */
+}
 
     .monthly-box {
       display: inline-block;
@@ -307,9 +334,7 @@ html, body {
   -webkit-user-drag: none;
 }
 
-.theme-btn {
-  right: 210px; /* 根據其他按鈕調整 */
-}
+
 
 	
 	
@@ -454,7 +479,10 @@ function checkDateUpdate() {
   }
 
   function updateCounterDisplay() {
-    countEl.textContent = `${count} / ${group}`;
+countEl.innerHTML = `
+  <div class="count-number">${count}</div>
+  <div class="group-number">/ ${group}</div>
+`;
   }
 
 function incrementCounter(e) {
