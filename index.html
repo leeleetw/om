@@ -434,10 +434,19 @@ html, body {
   let currentSpeed = 1;
 
   let monthData = JSON.parse(localStorage.getItem('monthData')) || {};
-  let count = parseInt(localStorage.getItem('count')) || 0;
-  let group = parseInt(localStorage.getItem('group')) || 0;
+let count = parseInt(localStorage.getItem('count')) || 0;
+let storedGroupDate = localStorage.getItem('groupDate');
+let storedGroup = parseInt(localStorage.getItem('group')) || 0;
 
+let group;
 
+if (storedGroupDate && storedGroupDate === todayKey) {
+  group = storedGroup;
+} else {
+  group = 0;
+  localStorage.setItem('groupDate', todayKey);
+  localStorage.setItem('group', '0'); // 儲存為字串以避免自動轉型錯誤
+}
 
 function showFloatingToast(message, duration = 5000) {
   const toast = document.createElement('div');
@@ -487,12 +496,13 @@ function checkDateUpdate() {
   }
   setMidnightCheck();
 
-  function save() {
-    localStorage.setItem('count', count);
-    localStorage.setItem('group', group);
+function save() {
+  localStorage.setItem('count', count);
+  localStorage.setItem('group', group);
+  localStorage.setItem('groupDate', todayKey); // ✅ 新增這行
     monthData[todayKey] = { count, group };
     localStorage.setItem('monthData', JSON.stringify(monthData));
-    if (calendarScreen.classList.contains('active')) renderCalendar(currentYear, currentMonth);
+	if (calendarScreen.classList.contains('active')) renderCalendar(currentYear, currentMonth);
   }
 
   function updateCounterDisplay() {
