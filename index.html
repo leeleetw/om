@@ -1,6 +1,6 @@
 
  <!-- 每次上傳新版本時，記得手動改這一行版本號
-const latestVersion = '20250526';-->
+const latestVersion = '20250525';-->
 
 <!DOCTYPE html>
 
@@ -25,9 +25,6 @@ const latestVersion = '20250526';-->
 
 <!-- Android Chrome 主畫面 icon fallback -->
 <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
-
-
-
 
 
   <style>
@@ -459,7 +456,7 @@ html, body {
 
   <script>
   // ✅ 自動判斷是否為舊版，如果是，就轉址到新版本
-const latestVersion = '20250526';
+const latestVersion = '20250525';
 
 const currentUrl = new URL(location.href);
 const currentVersion = currentUrl.searchParams.get('v');
@@ -567,18 +564,12 @@ countEl.innerHTML = `
   }
 const clickSound = document.getElementById('clickSound');
 
-function playClickSound() {
-  if (!soundEnabled) return;
-}
 
 
 // 解鎖音訊權限（使用者第一次點畫面）
 document.body.addEventListener('pointerdown', () => {
   playClickSound();
 }, { once: true });
-
-
-
 
 
 
@@ -875,23 +866,25 @@ function updateSoundIcon() {
   waves.style.display = soundEnabled ? 'inline' : 'none';
 }
 
-
-
 function playClickSound() {
   if (!soundEnabled) return;
   if (clickSound && typeof clickSound.play === 'function') {
+    clickSound.pause();
     clickSound.currentTime = 0;
     clickSound.play().catch(() => {});
   }
 }
 
+
 document.addEventListener('DOMContentLoaded', () => {
   const clickSound = document.getElementById('clickSound');
   if (clickSound) {
     clickSound.preload = 'auto';
-    clickSound.load(); // 主動載入音效檔案
+    clickSound.load();
+    clickSound.pause();
   }
 });
+
 
   
 </script>
