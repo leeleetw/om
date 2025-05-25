@@ -1,6 +1,6 @@
 
  <!-- 每次上傳新版本時，記得手動改這一行版本號
-const latestVersion = '20250525';-->
+const latestVersion = '20250527';-->
 
 <!DOCTYPE html>
 
@@ -456,7 +456,7 @@ html, body {
 
   <script>
   // ✅ 自動判斷是否為舊版，如果是，就轉址到新版本
-const latestVersion = '20250525';
+const latestVersion = '20250527';
 
 const currentUrl = new URL(location.href);
 const currentVersion = currentUrl.searchParams.get('v');
@@ -866,14 +866,24 @@ function updateSoundIcon() {
   waves.style.display = soundEnabled ? 'inline' : 'none';
 }
 
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+let clickBuffer = null;
+
+// 預先載入音效並解碼為 audio buffer
+fetch('soft_tap.mp3')
+  .then(response => response.arrayBuffer())
+  .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+  .then(decoded => { clickBuffer = decoded; });
+
 function playClickSound() {
-  if (!soundEnabled) return;
-  if (clickSound && typeof clickSound.play === 'function') {
-    clickSound.pause();
-    clickSound.currentTime = 0;
-    clickSound.play().catch(() => {});
-  }
+  if (!soundEnabled || !clickBuffer) return;
+
+  const source = audioContext.createBufferSource();
+  source.buffer = clickBuffer;
+  source.connect(audioContext.destination);
+  source.start(0);
 }
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
