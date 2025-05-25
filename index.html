@@ -550,11 +550,14 @@ countEl.innerHTML = `
 const clickSound = document.getElementById('clickSound');
 
 function playClickSound() {
-  if (clickSound && typeof clickSound.play === 'function') {
-    clickSound.currentTime = 0;
-    clickSound.play().catch(() => {}); // 安全播放
-  }
+  if (!soundEnabled) return;
+
+  // 為每次點擊創建新的 Audio 實例，避免音效被卡住
+  const sound = new Audio('soft_tap.mp3');
+  sound.volume = 1;
+  sound.play().catch(() => {});
 }
+
 
 // 解鎖音訊權限（使用者第一次點畫面）
 document.body.addEventListener('pointerdown', () => {
