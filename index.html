@@ -527,6 +527,7 @@ function incrementCounter(e) {
 const tapArea = document.getElementById('tapArea');
 
 tapArea.addEventListener('pointerdown', (e) => {
+  navigator.vibrate?.(50); // ✅ 震動 50 毫秒（只在支援的手機上）
   incrementCounter(e);
 });
 
