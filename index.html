@@ -1,6 +1,6 @@
 
  <!-- 每次上傳新版本時，記得手動改這一行版本號
-const latestVersion = '20250525';-->
+const latestVersion = '20250527';-->
 
 <!DOCTYPE html>
 
@@ -456,7 +456,7 @@ html, body {
 
   <script>
   // ✅ 自動判斷是否為舊版，如果是，就轉址到新版本
-const latestVersion = '20250525';
+const latestVersion = '20250527';
 
 const currentUrl = new URL(location.href);
 const currentVersion = currentUrl.searchParams.get('v');
@@ -894,38 +894,6 @@ document.addEventListener('DOMContentLoaded', () => {
     clickSound.pause();
   }
 });
-
-const isTouchDevice = 'ontouchstart' in window;
-
-if (isTouchDevice) {
-  let touchStartY = 0;
-  let touchStartX = 0;
-  let touchMoved = false;
-
-  tapArea.addEventListener('touchstart', (e) => {
-    touchStartY = e.touches[0].clientY;
-    touchStartX = e.touches[0].clientX;
-    touchMoved = false;
-  }, { passive: true });
-
-  tapArea.addEventListener('touchmove', (e) => {
-    const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
-    const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
-    if (deltaY > 10 || deltaX > 10) {
-      touchMoved = true;
-    }
-  }, { passive: true });
-
-  tapArea.addEventListener('touchend', (e) => {
-    if (!touchMoved) {
-      playClickSound();
-      incrementCounter(e);
-      triggerTapAnimation();
-    }
-  });
-} else {
-  tapArea.addEventListener('pointerdown', handleTap);
-}
 
 
   
