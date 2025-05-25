@@ -569,11 +569,6 @@ const clickSound = document.getElementById('clickSound');
 
 function playClickSound() {
   if (!soundEnabled) return;
-
-  // 為每次點擊創建新的 Audio 實例，避免音效被卡住
-  const sound = new Audio('soft_tap.mp3');
-  sound.volume = 1;
-  sound.play().catch(() => {});
 }
 
 
@@ -889,6 +884,14 @@ function playClickSound() {
     clickSound.play().catch(() => {});
   }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const clickSound = document.getElementById('clickSound');
+  if (clickSound) {
+    clickSound.preload = 'auto';
+    clickSound.load(); // 主動載入音效檔案
+  }
+});
 
   
 </script>
