@@ -895,6 +895,38 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+const isTouchDevice = 'ontouchstart' in window;
+
+if (isTouchDevice) {
+  let touchStartY = 0;
+  let touchStartX = 0;
+  let touchMoved = false;
+
+  tapArea.addEventListener('touchstart', (e) => {
+    touchStartY = e.touches[0].clientY;
+    touchStartX = e.touches[0].clientX;
+    touchMoved = false;
+  }, { passive: true });
+
+  tapArea.addEventListener('touchmove', (e) => {
+    const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
+    const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
+    if (deltaY > 10 || deltaX > 10) {
+      touchMoved = true;
+    }
+  }, { passive: true });
+
+  tapArea.addEventListener('touchend', (e) => {
+    if (!touchMoved) {
+      playClickSound();
+      incrementCounter(e);
+      triggerTapAnimation();
+    }
+  });
+} else {
+  tapArea.addEventListener('pointerdown', handleTap);
+}
+
 
   
 </script>
