@@ -38,7 +38,22 @@
   color: #d27474; /* 你可改成任何你想要的顏色，或動態設定 */
 }
 
-  
+  .tap-area {
+  transition: transform 0.1s ease;
+}
+
+
+.tap-area.animate {
+  animation: tapScale 150ms ease-out;
+}
+
+@keyframes tapScale {
+  0% { transform: scale(1); }
+  30% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+
   
     :root {
       --bg: #f2f6f8;
@@ -255,6 +270,10 @@ height: calc(100dvh - 10px);
       overflow: hidden;
     }
 
+.sound-btn {
+  right: 210px;
+}
+
     .toggle-calendar-btn { right: 110px; }
     .reset-btn { left: 10px; touch-action: manipulation; }
     .play-btn { right: 10px; }
@@ -360,6 +379,20 @@ html, body {
 </head>
 <body>
   <!-- 控制按鈕 -->
+<button class="circle-btn sound-btn" onclick="toggleSound()" aria-label="切換音效">
+  <svg id="soundIcon" viewBox="0 0 24 24" width="24" height="24" stroke="#000000" fill="none" stroke-width="2">
+    <!-- 喇叭主體 -->
+    <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+    <!-- 聲波群組：兩道聲波有間距 -->
+    <g id="soundWaves">
+      <path d="M13 8a3 3 0 0 1 0 8" />      <!-- 第一條聲波 -->
+      <path d="M16 6a6 6 0 0 1 0 12" />    <!-- 第二條聲波，明顯距離 -->
+    </g>
+  </svg>
+</button>
+
+
+  
 <button class="circle-btn theme-btn" onclick="toggleTheme()" aria-label="切換主題">
   <svg viewBox="0 0 100 100" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
     <defs>
@@ -415,6 +448,9 @@ html, body {
   <audio id="bgm" loop>
     <source src="background.mp3" type="audio/mpeg">
   </audio>
+  
+  <audio id="clickSound" src="soft_tap.mp3" preload="auto"></audio>
+
   <script>
   const countEl = document.getElementById('tapArea');
   const calendarScreen = document.getElementById('calendarScreen');
@@ -511,6 +547,24 @@ countEl.innerHTML = `
   <div class="group-number">/ ${group}</div>
 `;
   }
+const clickSound = document.getElementById('clickSound');
+
+function playClickSound() {
+  if (clickSound && typeof clickSound.play === 'function') {
+    clickSound.currentTime = 0;
+    clickSound.play().catch(() => {}); // 安全播放
+  }
+}
+
+// 解鎖音訊權限（使用者第一次點畫面）
+document.body.addEventListener('pointerdown', () => {
+  playClickSound();
+}, { once: true });
+
+
+
+
+
 
 function incrementCounter(e) {
     count++;
@@ -523,12 +577,24 @@ function incrementCounter(e) {
 	  showHeart(e);
 
   }
+
 // 📌 更快的點擊響應：用 pointerdown 替代 touchstart
 const tapArea = document.getElementById('tapArea');
 
-tapArea.addEventListener('pointerdown', (e) => {
+function triggerTapAnimation() {
+  tapArea.classList.remove('animate');       // 移除動畫 class
+  void tapArea.offsetWidth;                  // 強制重繪 (reflow)
+  tapArea.classList.add('animate');          // 重新加上動畫 class
+}
+
+function handleTap(e) {
+  playClickSound();
   incrementCounter(e);
-});
+  triggerTapAnimation();                     // 播放動畫
+}
+
+tapArea.addEventListener('pointerdown', handleTap);
+
 
 
 
@@ -777,6 +843,30 @@ function toggleTheme() {
 // 初始化時讀取使用者上次設定
 if (localStorage.getItem('theme') === 'dark') {
   document.documentElement.classList.add('dark-mode'); // ✅ 加在 <html> 而非 <body>
+}
+
+let soundEnabled = localStorage.getItem('soundEnabled') !== 'false'; // 預設開啟音效
+updateSoundIcon();
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  localStorage.setItem('soundEnabled', soundEnabled);
+  updateSoundIcon();
+}
+
+function updateSoundIcon() {
+  const waves = document.getElementById('soundWaves');
+  waves.style.display = soundEnabled ? 'inline' : 'none';
+}
+
+
+
+function playClickSound() {
+  if (!soundEnabled) return;
+  if (clickSound && typeof clickSound.play === 'function') {
+    clickSound.currentTime = 0;
+    clickSound.play().catch(() => {});
+  }
 }
 
   
