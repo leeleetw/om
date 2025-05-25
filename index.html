@@ -1,4 +1,10 @@
+
+ <!-- 每次上傳新版本時，記得手動改這一行版本號
+const latestVersion = '20240525';-->
+
 <!DOCTYPE html>
+
+
 <html lang="zh-Hant" class="notranslate">
 
 <head>
@@ -452,6 +458,18 @@ html, body {
   <audio id="clickSound" src="soft_tap.mp3" preload="auto"></audio>
 
   <script>
+  // ✅ 自動判斷是否為舊版，如果是，就轉址到新版本
+const latestVersion = '20240525';
+
+const currentUrl = new URL(location.href);
+const currentVersion = currentUrl.searchParams.get('v');
+
+if (currentVersion !== latestVersion) {
+  currentUrl.searchParams.set('v', latestVersion);
+  location.replace(currentUrl.toString()); // ⬅️ 自動刷新載入新版本
+}
+
+  
   const countEl = document.getElementById('tapArea');
   const calendarScreen = document.getElementById('calendarScreen');
   const calendarDaysEl = document.getElementById('calendarDays');
